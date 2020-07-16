@@ -1,0 +1,105 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="/css/ObrStyle.css">
+    <link rel='stylesheet' href='/css/material.min.css'>
+    <script src="/js/async.js"></script>
+    <script type="text/javascript" src="/js/canvasjs.min.js"></script>
+    <script src='/js/material.min.js'></script>
+    <script>
+
+     
+    </script>
+</head>
+
+<body>
+    {{>header}}
+    <div class="flex-cont">
+        <div id="CNTChart" style="height: 400px; width: 65%;" class="flex-item" align="center"></div>
+        <div id="async">
+        
+            <table style="margin:10px;" class="mdl-data-table mdl-js-data-table mdl-shadow--2dp flex-item">
+                <tr>
+                    <td>В работе </td>
+                    <td>{{stats.unfinished}} </td>
+                </tr>
+                <tr>
+                    <td>Последний час </td>
+                    <td>{{stats.lastHour}} </td>
+                </tr>
+                <tr>
+                    <td>Сегодня</td>
+                    <td> {{stats.today}} </td>
+                </tr>
+                <tr>
+                    <td>Среднее время обработки</td>
+                    <td> {{stats.avg}} </td>
+                </tr>
+                <tr>
+                    <td>Максимальное время обработки</td>
+                    <td> {{stats.max}} </td>
+                </tr>
+
+            </table>
+            <p>{{error}}</p>
+        </div>
+    </div>
+    <div class="obr-form">
+    <p>Поиск запросов</p>
+    <form>
+        <input id="fetch-source" class="obr-input" placeholder="source"/>
+        <input id="fetch-id" class="obr-input" placeholder="id"/>
+        <button id="fetch-submit" class="obr-submit">Поиск</button>
+    </form>
+    <div id="fetch-msg" class="anim-reveal">
+    </div>
+    <div class="anim-drop" id="fetch-resdata"></div>
+    </div>
+    {{>footer}}
+</body>
+<script>
+    ASYNC_UPDATE("async", "getstats", 10000)
+
+       var cnt = new CanvasJS.Chart("CNTChart", {
+      	
+	title: {
+		text: "Количество запросов"
+	},
+	toolTip: {
+		shared: true
+	},
+	axisX: {
+		
+		
+	},
+	axisY: {
+		
+		titleFontColor: "#4F81BC",
+		suffix: ""
+	},
+	legend: {
+		verticalAlign: "top",
+		horizontalAlign: "right",
+		dockInsidePlotArea: true
+	},
+	data: [
+	{
+		name: "Количество",
+		showInLegend: true,
+		type: "splineArea",
+		color: "rgba(0,75,141,0.7)",
+		xValueFormatString: "### часов",
+		yValueFormatString: "###",
+		dataPoints: [
+            {{#each stats.cntByHour}}
+			{ x: {{x}}, y: {{y}} },
+			{{/each}}
+		]
+	}]
+});
+
+    cnt.render();
+</script>
+ <script src="/js/fetch.js"></script>
+
+</html>

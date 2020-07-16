@@ -1,0 +1,7 @@
+{
+    "processtext":"SPEXT",
+    "grabCount": 20,
+    "cooldown":20,
+    "interval":500,
+    "resdir":"./data"
+}
