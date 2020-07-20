@@ -199,9 +199,6 @@ const run = (workerName,callback) =>{
         {
           requests.forEach((request)=>{
             CRE.requestSPEXT(request.inn,(error,result)=>{
-             
-             
-             
               if (error){
                 fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
                 log.timestamp("Error for Source:"+request.source+",ID:"+request.id)
@@ -226,7 +223,7 @@ const run = (workerName,callback) =>{
 
 
 const single = (inn,callback)=>{
-  FBR24.check(inn, (error, response) => {
+  CRE.requestSPEXT(inn, (error, response) => {
     log.timestamp(
       chalk.underline.blueBright(
         "Результат для ИНН " + chalk.yellow(inn) + ":"
@@ -253,7 +250,7 @@ const manual = (inns, callback) => {
 
   
     inns.forEach((inn) => {
-      FBR24.check(inn, (error, response) => {
+      CRE.requestSPEXT(inn, (error, response) => {
         log.timestamp(
           chalk.underline.blueBright(
             "Результат для ИНН " + chalk.yellow(inn) + ":"

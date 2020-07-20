@@ -1,24 +1,67 @@
 {
-    "user": "postgres",
-    "password": "postgres",
+  "user": "postgres",
+  "password": "postgres",
 
-    "host": "localhost",
-    "port": 1988,
-    "database": "SPEXT",
-    "backupdir":"\\..\\..\\backup",
+  "host": "localhost",
+  "port": 1988,
+  "database": "SPEXT",
+  "backupdir": "\\..\\..\\backup",
+
+  "dropQueries": [
+    "DROP TABLE ACCESSIBLEFINDATA",
+    "DROP TABLE ADJUSTADDRESSES",
+    "DROP TABLE ARBITRATIONCASES",
+    "DROP TABLE ATTR",
+    "DROP TABLE BANKRUPTCYMESSAGE",
+    "DROP TABLE BOARDOFDIRECTORS",
+    "DROP TABLE EVENTSLIST",
+    "DROP TABLE EXECUTIVEBODY",
+    "DROP TABLE FAXLIST",
+    "DROP TABLE FEDERALTAXREGISTRATION",
+    "DROP TABLE FINANCE",
+    "DROP TABLE INCLUDEINLIST",
+    "DROP TABLE LEADERLIST",
+    "DROP TABLE LEGALADDRESSES",
+    "DROP TABLE LOG",
+    "DROP TABLE LOGERR",
+    "DROP TABLE OKVEDLIST",
+    "DROP TABLE PERSONSWITHOUTWARRANT",
+    "DROP TABLE PHONELIST",
+    "DROP TABLE PREVIOUSADDRESSES",
+    "DROP TABLE REPORT",
+    "DROP TABLE REQDATA",
+    "DROP TABLE STATECONTRACTS_FL223",
+    "DROP TABLE STATECONTRACTS_FL94",
+    "DROP TABLE STRUCTUREINFO",
+    "DROP TABLE VESTNIKMESSAGE"
     
-    "dropQueries":[
-      "DROP TABLE public.log",
-      "DROP TABLE public.resdata",
-      "DROP TABLE public.reqdata",
-      "DROP TABLE public.workers",
-      "DROP TABLE public.errorlog"
-    ],
-    "createQueries":[
-      "CREATE TABLE public.log (    source character varying,    id character varying,    worker character varying,    snd timestamp without time zone,    rep timestamp without time zone,    result character varying)",
-      "CREATE TABLE public.reqdata (source character varying,    id character varying,    inn character varying)",
-      "CREATE TABLE public.resdata (source character varying,    id character varying,    found character varying,    listname character varying)",
-      "CREATE TABLE public.workers (workerName character varying, updated timestamp without time zone)",
-      "CREATE TABLE public.errorlog (error character varying, datetime timestamp without time zone)"
-    ]
-  }
+  ],
+  "createQueries": [
+    "CREATE TABLE ACCESSIBLEFINDATA( SOURCE character varying(10),ID character varying(36),IDPERIOD double precision,NAME character varying(20),ENDDATE date)",
+    "CREATE TABLE ADJUSTADDRESSES( SOURCE character varying(10),ID character varying(36),POSTCODE character varying(6),ADDRESS character varying(500),REGION character varying(50),AREA character varying(50),CITY character varying(50),STREET character varying(50),HOUSE character varying(50),FIASCODE character varying(140),FIASREGION character varying(140),FIASAREA character varying(140),FIASCITY character varying(140),FIASPLACE character varying(140),FIASSTREET character varying(140),ACTUALDATE date)",
+    "CREATE TABLE ARBITRATIONCASES( SOURCE character varying(10),ID character varying(36),YEAR character varying(4),NUMBERPLAINTIFF double precision,SUMPLAINTIFF character varying(20),NUMBERDEFENDANT double precision,SUMDEFENDANT character varying(20),NUMBERTHIRD double precision)",
+    "CREATE TABLE ATTR( SOURCE character varying(10),ID character varying(36),RESULTTYPE character varying(15),EXECUTIONTIME double precision)",
+    "CREATE TABLE BANKRUPTCYMESSAGE( SOURCE character varying(10),ID character varying(36),DATE date,TYPE character varying(500),CASENUMBER character varying(32),IDTYPE character varying(20))",
+    "CREATE TABLE BOARDOFDIRECTORS( SOURCE character varying(10),ID character varying(36),ACTUALDATE date,NAME character varying(255),BIRTHDAYYEAR character varying(10),CODE character varying(50),POS character varying(50),SHAREPART character varying(12),INN character varying(15))",
+    "CREATE TABLE EVENTSLIST( SOURCE character varying(10),ID character varying(36),EVENTTYPEID character varying(255),TYPE character varying(500),DATE date)",
+    "CREATE TABLE EXECUTIVEBODY( SOURCE character varying(10),ID character varying(36),ACTUALDATE date,NAME character varying(255),BIRTHDAYYEAR character varying(4),CODE character varying(50),POS character varying(50),SHAREPART character varying(5),INN character varying(15))",
+    "CREATE TABLE FAXLIST( SOURCE character varying(10),ID character varying(36),CODE character varying(5),NUMBER character varying(10),STATUS character varying(50))",
+    "CREATE TABLE FEDERALTAXREGISTRATION( SOURCE character varying(10),ID character varying(36),REGDATE date,REGAUTHORITY character varying(255),REGAUTHORITYADDRESS character varying(255))",
+    "CREATE TABLE FINANCE( SOURCE character varying(10),ID character varying(36),BALANCETYPE double precision,PERIODNAME character varying(50),DATEBEGIN date,DATEEND date,FORM character varying(50),SECTION character varying(255),NAME character varying(255),CODE double precision,VALUE character varying(50),IDFINPOK double precision)",
+    "CREATE TABLE INCLUDEINLIST( SOURCE character varying(10),ID character varying(36),LISTNAME character varying(200))",
+    "CREATE TABLE LEADERLIST( SOURCE character varying(10),ID character varying(36),FIO character varying(255),POSITION character varying(50),ACTUALDATE date,INN character varying(255))",
+    "CREATE TABLE LEGALADDRESSES( SOURCE character varying(10),ID character varying(36),POSTCODE character varying(6),ADDRESS character varying(500),REGION character varying(50),AREA character varying(50),CITY character varying(50),STREET character varying(50),HOUSE character varying(50),FIASCODE character varying(140),FIASREGION character varying(140),FIASAREA character varying(140),FIASCITY character varying(140),FIASPLACE character varying(140),FIASSTREET character varying(140),ACTUALDATE date)",
+    "CREATE TABLE LOG( SOURCE character varying(10),ID character varying(36),WORKER character varying(10),SND timestamp with time zone,REP timestamp with time zone,RESULT character varying(5))",
+    "CREATE TABLE LOGERR( DATETIME character varying(10),SYSCC double precision,ERRMSG character varying(100))",
+    "CREATE TABLE OKVEDLIST( SOURCE character varying(10),ID character varying(36),CODE character varying(32),NAME character varying(500),ISMAIN character varying(5))",
+    "CREATE TABLE PERSONSWITHOUTWARRANT( SOURCE character varying(10),ID character varying(36),ACTUALDATE date,NAME character varying(255),POS character varying(50),INN character varying(255))",
+    "CREATE TABLE PHONELIST( SOURCE character varying(10),ID character varying(36),CODE character varying(5),NUMBER character varying(10),STATUS character varying(50))",
+    "CREATE TABLE PREVIOUSADDRESSES( SOURCE character varying(10),ID character varying(36),POSTCODE character varying(6),ADDRESS character varying(500),REGION character varying(50),AREA character varying(50),CITY character varying(50),STREET character varying(50),HOUSE character varying(50),FIASCODE character varying(140),FIASREGION character varying(140),FIASAREA character varying(140),FIASCITY character varying(140),FIASPLACE character varying(140),FIASSTREET character varying(140),ACTUALDATE date)",
+    "CREATE TABLE REPORT( SOURCE character varying(10),ID character varying(36),SPARKID character varying(100),STATUS character varying(200),EGRPOINCLUDED character varying(5),EGRULLIKVIDATION character varying(5),ISACTING character varying(5),DATEFIRSTREG date,SHORTNAMERUS character varying(255),SHORTNAMEEN character varying(255),FULLNAMERUS character varying(500),NORMNAME character varying(500),INN character varying(12),KPP character varying(12),OGRN character varying(15),OKPO character varying(15),FCSMCODE character varying(15),RTS character varying(15),OKATO character varying(11),OKOGU character varying(7),OKFS character varying(5),OKOPF character varying(2),OKOPF_NEW character varying(10),CHARTERCAPITAL double precision,EMAIL character varying(255),WWW character varying(255),WORKERSRANGE character varying(50),ADDRESS character varying(500),CREDITRISKVALUE double precision,CREDITRISKDESC character varying(50),FAILURESCOREVALUE character varying(10),FAILURESCOREDESC character varying(100),PAYMENTINDEXVALUE double precision,PAYMENTINDEXDESC character varying(50),COMPANYSIZE_REVENUE character varying(10),COMPANYSIZE character varying(512),SAMETELEPHONECOUNT double precision,SAMEADDRESSCOUNT double precision,SAMEMANAGERCOUNTINCOUNTRY double precision,SAMEMANAGERCOUNTINREGION double precision,INDEXOFDUEDILIGENCE double precision,OKATO_REGIONNAME character varying(50),OKATO_REGIONCODE character varying(2),OKOGUNAME character varying(200),OKFSNAME character varying(100),STATUSDATE date,INDEXOFDUEDILIGENCEDESC character varying(50),OKOPF_NAME character varying(50))",
+    "CREATE TABLE REQDATA( SOURCE character varying(10),ID character varying(36),INN character varying(12))",
+    "CREATE TABLE STATECONTRACTS_FL223( SOURCE character varying(10),ID character varying(36),YEAR character varying(4),ADMITTEDNUMBER double precision,NOTADMITTEDNUMBER double precision,WINNERNUMBER double precision,SIGNEDNUMBER double precision,SUM character varying(20))",
+    "CREATE TABLE STATECONTRACTS_FL94( SOURCE character varying(10),ID character varying(36),YEAR character varying(4),ADMITTEDNUMBER double precision,NOTADMITTEDNUMBER double precision,WINNERNUMBER double precision,SIGNEDNUMBER double precision,SUM character varying(20))",
+    "CREATE TABLE STRUCTUREINFO( SOURCE character varying(10),ID character varying(36),COUNTCOOWNERFCSM double precision,COUNTCOOWNERROSSTAT double precision,COUNTCOOWNEREGRUL double precision,COUNTBRANCH double precision,COUNTBRANCHROSSTAT double precision,COUNTAFFILIATEDCOMPANYFCSM double precision,COUNTAFFILIATEDCOMPANYROSSTAT double precision,COUNTAFFILIATEDCOMPANYEGRUL double precision,NONPROFITORGANIZATIONROSSTAT double precision)",
+    "CREATE TABLE VESTNIKMESSAGE( SOURCE character varying(10),ID character varying(36),DATE date,TYPE character varying(500),CASENUMBER character varying(32),IDTYPE character varying(20),TEXT character varying(1024))"
+  ]
+}
