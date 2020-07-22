@@ -35,6 +35,7 @@
     "DROP TABLE workers"
   ],
   "createQueries": [
+    "CREATE TABLE public.workers (workerName character varying, updated timestamp with time zone)",
     "CREATE TABLE accessiblefindata( source character varying(10),id character varying(36),sparkid double precision,idperiod double precision,name character varying(20),enddate date)",
     "CREATE TABLE adjustaddresses( source character varying(10),id character varying(36),sparkid double precision,postcode character varying(6),address character varying(500),region character varying(50),area character varying(50),city character varying(50),street character varying(50),house character varying(50),fiascode character varying(140),fiasregion character varying(140),fiasarea character varying(140),fiascity character varying(140),fiasplace character varying(140),fiasstreet character varying(140),actualdate date)",
     "CREATE TABLE arbitrationcases( source character varying(10),id character varying(36),sparkid double precision,year character varying(4),numberplaintiff double precision,sumplaintiff character varying(20),numberdefendant double precision,sumdefendant character varying(20),numberthird double precision)",
