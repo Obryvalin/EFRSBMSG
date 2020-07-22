@@ -4,9 +4,11 @@ const fs = require("fs");
 const validate = require("./validate");
 const path = require('path')
 const log = require('./log')
+const jp = require('jsonpath')
 
 const pgoptions = JSON.parse(fs.readFileSync("conf/pg.json").toString());
-const { dropQueries, createQueries, backupdir} = pgoptions;
+const { dropQueries, createQueries, backupdir, dataStructure} = pgoptions;
+
 if (!fs.existsSync(backupdir)){fs.mkdirSync(backupdir)};
 //log.timestamp(pgoptions);
 pool = new Pool(pgoptions)
@@ -227,82 +229,135 @@ const getResponseData = (source,id,callback)=>{
 }
 //=====================================
 
+    
+const injectToArray = (VarArray,name,value) =>{
+  if(Array.isArray(VarArray)){
+    VarArray.forEach((item)=>{
+          item[name] = value; 
+      })
+      return VarArray;
+  }
+  if(VarArray){
+    VarArray[name]=value;
+  }
+  return VarArray;
+}
+  
 const submitResponse = (source,id,response,callback) =>{
   var resparray=[];
   
 
   if (response) {
-   
-    if(response.lists){
-    if (response.lists.list.length > 1) {
-      response.lists.list.forEach((list) => {
-        // log.timestamp("insert into resdata(source,id,found,list) values('"+source+"','"+id+"','"+"Y"+"','"+list.name+"')")
-        resparray.push("INSERT INTO ACCESSIBLEFINDATA( SOURCE,ID,IDPERIOD,NAME,ENDDATE) values( SOURCE,ID,IDPERIOD,NAME,ENDDATE)")
-        resparray.push("INSERT INTO ADJUSTADDRESSES( SOURCE,ID,POSTCODE,ADDRESS,REGION,AREA,CITY,STREET,HOUSE,FIASCODE,FIASREGION,FIASAREA,FIASCITY,FIASPLACE,FIASSTREET,ACTUALDATE) values( SOURCE,ID,POSTCODE,ADDRESS,REGION,AREA,CITY,STREET,HOUSE,FIASCODE,FIASREGION,FIASAREA,FIASCITY,FIASPLACE,FIASSTREET,ACTUALDATE)")
-        resparray.push("INSERT INTO ARBITRATIONCASES( SOURCE,ID,YEAR,NUMBERPLAINTIFF,SUMPLAINTIFF,NUMBERDEFENDANT,SUMDEFENDANT,NUMBERTHIRD) values( SOURCE,ID,YEAR,NUMBERPLAINTIFF,SUMPLAINTIFF,NUMBERDEFENDANT,SUMDEFENDANT,NUMBERTHIRD)")
-        resparray.push("INSERT INTO ATTR( SOURCE,ID,RESULTTYPE,EXECUTIONTIME) values( SOURCE,ID,RESULTTYPE,EXECUTIONTIME)")
-        resparray.push("INSERT INTO BANKRUPTCYMESSAGE( SOURCE,ID,DATE,TYPE,CASENUMBER,IDTYPE) values( SOURCE,ID,DATE,TYPE,CASENUMBER,IDTYPE)")
-        resparray.push("INSERT INTO BOARDOFDIRECTORS( SOURCE,ID,ACTUALDATE,NAME,BIRTHDAYYEAR,CODE,POS,SHAREPART,INN) values( SOURCE,ID,ACTUALDATE,NAME,BIRTHDAYYEAR,CODE,POS,SHAREPART,INN)")
-        resparray.push("INSERT INTO EVENTSLIST( SOURCE,ID,EVENTTYPEID,TYPE,DATE) values( SOURCE,ID,EVENTTYPEID,TYPE,DATE)")
-        resparray.push("INSERT INTO EXECUTIVEBODY( SOURCE,ID,ACTUALDATE,NAME,BIRTHDAYYEAR,CODE,POS,SHAREPART,INN) values( SOURCE,ID,ACTUALDATE,NAME,BIRTHDAYYEAR,CODE,POS,SHAREPART,INN)")
-        resparray.push("INSERT INTO FAXLIST( SOURCE,ID,CODE,NUMBER,STATUS) values( SOURCE,ID,CODE,NUMBER,STATUS)")
-        resparray.push("INSERT INTO FEDERALTAXREGISTRATION( SOURCE,ID,REGDATE,REGAUTHORITY,REGAUTHORITYADDRESS) values( SOURCE,ID,REGDATE,REGAUTHORITY,REGAUTHORITYADDRESS)")
-        resparray.push("INSERT INTO FINANCE( SOURCE,ID,BALANCETYPE,PERIODNAME,DATEBEGIN,DATEEND,FORM,SECTION,NAME,CODE,VALUE,IDFINPOK) values( SOURCE,ID,BALANCETYPE,PERIODNAME,DATEBEGIN,DATEEND,FORM,SECTION,NAME,CODE,VALUE,IDFINPOK)")
-        resparray.push("INSERT INTO INCLUDEINLIST( SOURCE,ID,LISTNAME) values( SOURCE,ID,LISTNAME)")
-        resparray.push("INSERT INTO LEADERLIST( SOURCE,ID,FIO,POSITION,ACTUALDATE,INN) values( SOURCE,ID,FIO,POSITION,ACTUALDATE,INN)")
-        resparray.push("INSERT INTO LEGALADDRESSES( SOURCE,ID,POSTCODE,ADDRESS,REGION,AREA,CITY,STREET,HOUSE,FIASCODE,FIASREGION,FIASAREA,FIASCITY,FIASPLACE,FIASSTREET,ACTUALDATE) values( SOURCE,ID,POSTCODE,ADDRESS,REGION,AREA,CITY,STREET,HOUSE,FIASCODE,FIASREGION,FIASAREA,FIASCITY,FIASPLACE,FIASSTREET,ACTUALDATE)")
-        resparray.push("INSERT INTO LOG( SOURCE,ID,WORKER,SND,REP,RESULT) values( SOURCE,ID,WORKER,SND,REP,RESULT)")
-        resparray.push("INSERT INTO LOGERR( DATETIME,SYSCC,ERRMSG) values( DATETIME,SYSCC,ERRMSG)")
-        resparray.push("INSERT INTO OKVEDLIST( SOURCE,ID,CODE,NAME,ISMAIN) values( SOURCE,ID,CODE,NAME,ISMAIN)")
-        resparray.push("INSERT INTO PERSONSWITHOUTWARRANT( SOURCE,ID,ACTUALDATE,NAME,POS,INN) values( SOURCE,ID,ACTUALDATE,NAME,POS,INN)")
-        resparray.push("INSERT INTO PHONELIST( SOURCE,ID,CODE,NUMBER,STATUS) values( SOURCE,ID,CODE,NUMBER,STATUS)")
-        resparray.push("INSERT INTO PREVIOUSADDRESSES( SOURCE,ID,POSTCODE,ADDRESS,REGION,AREA,CITY,STREET,HOUSE,FIASCODE,FIASREGION,FIASAREA,FIASCITY,FIASPLACE,FIASSTREET,ACTUALDATE) values( SOURCE,ID,POSTCODE,ADDRESS,REGION,AREA,CITY,STREET,HOUSE,FIASCODE,FIASREGION,FIASAREA,FIASCITY,FIASPLACE,FIASSTREET,ACTUALDATE)")
-        resparray.push("INSERT INTO REPORT( SOURCE,ID,STATUS,EGRPOINCLUDED,EGRULLIKVIDATION,ISACTING,DATEFIRSTREG,SHORTNAMERUS,SHORTNAMEEN,FULLNAMERUS,NORMNAME,INN,KPP,OGRN,OKPO,FCSMCODE,RTS,OKATO,OKOGU,OKFS,OKOPF,OKOPF_NEW,CHARTERCAPITAL,EMAIL,WWW,WORKERSRANGE,ADDRESS,CREDITRISKVALUE,CREDITRISKDESC,FAILURESCOREVALUE,FAILURESCOREDESC,PAYMENTINDEXVALUE,PAYMENTINDEXDESC,COMPANYSIZE_REVENUE,COMPANYSIZE,SAMETELEPHONECOUNT,SAMEADDRESSCOUNT,SAMEMANAGERCOUNTINCOUNTRY,SAMEMANAGERCOUNTINREGION,INDEXOFDUEDILIGENCE,OKATO_REGIONNAME,OKATO_REGIONCODE,OKOGUNAME,OKFSNAME,STATUSDATE,INDEXOFDUEDILIGENCEDESC,OKOPF_NAME) values( SOURCE,ID,STATUS,EGRPOINCLUDED,EGRULLIKVIDATION,ISACTING,DATEFIRSTREG,SHORTNAMERUS,SHORTNAMEEN,FULLNAMERUS,NORMNAME,INN,KPP,OGRN,OKPO,FCSMCODE,RTS,OKATO,OKOGU,OKFS,OKOPF,OKOPF_NEW,CHARTERCAPITAL,EMAIL,WWW,WORKERSRANGE,ADDRESS,CREDITRISKVALUE,CREDITRISKDESC,FAILURESCOREVALUE,FAILURESCOREDESC,PAYMENTINDEXVALUE,PAYMENTINDEXDESC,COMPANYSIZE_REVENUE,COMPANYSIZE,SAMETELEPHONECOUNT,SAMEADDRESSCOUNT,SAMEMANAGERCOUNTINCOUNTRY,SAMEMANAGERCOUNTINREGION,INDEXOFDUEDILIGENCE,OKATO_REGIONNAME,OKATO_REGIONCODE,OKOGUNAME,OKFSNAME,STATUSDATE,INDEXOFDUEDILIGENCEDESC,OKOPF_NAME)")
-        resparray.push("INSERT INTO REQDATA( SOURCE,ID,INN) values( SOURCE,ID,INN)")
-        resparray.push("INSERT INTO STATECONTRACTS_FL223( SOURCE,ID,YEAR,ADMITTEDNUMBER,NOTADMITTEDNUMBER,WINNERNUMBER,SIGNEDNUMBER,SUM) values( SOURCE,ID,YEAR,ADMITTEDNUMBER,NOTADMITTEDNUMBER,WINNERNUMBER,SIGNEDNUMBER,SUM)")
-        resparray.push("INSERT INTO STATECONTRACTS_FL94( SOURCE,ID,YEAR,ADMITTEDNUMBER,NOTADMITTEDNUMBER,WINNERNUMBER,SIGNEDNUMBER,SUM) values( SOURCE,ID,YEAR,ADMITTEDNUMBER,NOTADMITTEDNUMBER,WINNERNUMBER,SIGNEDNUMBER,SUM)")
-        resparray.push("INSERT INTO STRUCTUREINFO( SOURCE,ID,COUNTCOOWNERFCSM,COUNTCOOWNERROSSTAT,COUNTCOOWNEREGRUL,COUNTBRANCH,COUNTBRANCHROSSTAT,COUNTAFFILIATEDCOMPANYFCSM,COUNTAFFILIATEDCOMPANYROSSTAT,COUNTAFFILIATEDCOMPANYEGRUL,NONPROFITORGANIZATIONROSSTAT) values( SOURCE,ID,COUNTCOOWNERFCSM,COUNTCOOWNERROSSTAT,COUNTCOOWNEREGRUL,COUNTBRANCH,COUNTBRANCHROSSTAT,COUNTAFFILIATEDCOMPANYFCSM,COUNTAFFILIATEDCOMPANYROSSTAT,COUNTAFFILIATEDCOMPANYEGRUL,NONPROFITORGANIZATIONROSSTAT)")
-        resparray.push("INSERT INTO TABLES( TABLE_NAME,TABLE_DESCRIPTION) values( TABLE_NAME,TABLE_DESCRIPTION)")
-        resparray.push("INSERT INTO VESTNIKMESSAGE( SOURCE,ID,DATE,TYPE,CASENUMBER,IDTYPE,TEXT) values( SOURCE,ID,DATE,TYPE,CASENUMBER,IDTYPE,TEXT)")
-        
-       
-      });
-      result = "found";
-    } else if (response.lists.list) {
-      list = response.lists;
-      // log.timestamp("insert into resdata(source,id,found,list) values('"+source+"','"+id+"','"+"Y"+"','"+response.lists.list.name+"')");
-      resparray.push("INSERT INTO ACCESSIBLEFINDATA( SOURCE,ID,IDPERIOD,NAME,ENDDATE) values( SOURCE,ID,IDPERIOD,NAME,ENDDATE)")
-      resparray.push("INSERT INTO ADJUSTADDRESSES( SOURCE,ID,POSTCODE,ADDRESS,REGION,AREA,CITY,STREET,HOUSE,FIASCODE,FIASREGION,FIASAREA,FIASCITY,FIASPLACE,FIASSTREET,ACTUALDATE) values( SOURCE,ID,POSTCODE,ADDRESS,REGION,AREA,CITY,STREET,HOUSE,FIASCODE,FIASREGION,FIASAREA,FIASCITY,FIASPLACE,FIASSTREET,ACTUALDATE)")
-      resparray.push("INSERT INTO ARBITRATIONCASES( SOURCE,ID,YEAR,NUMBERPLAINTIFF,SUMPLAINTIFF,NUMBERDEFENDANT,SUMDEFENDANT,NUMBERTHIRD) values( SOURCE,ID,YEAR,NUMBERPLAINTIFF,SUMPLAINTIFF,NUMBERDEFENDANT,SUMDEFENDANT,NUMBERTHIRD)")
-      resparray.push("INSERT INTO ATTR( SOURCE,ID,RESULTTYPE,EXECUTIONTIME) values( SOURCE,ID,RESULTTYPE,EXECUTIONTIME)")
-      resparray.push("INSERT INTO BANKRUPTCYMESSAGE( SOURCE,ID,DATE,TYPE,CASENUMBER,IDTYPE) values( SOURCE,ID,DATE,TYPE,CASENUMBER,IDTYPE)")
-      resparray.push("INSERT INTO BOARDOFDIRECTORS( SOURCE,ID,ACTUALDATE,NAME,BIRTHDAYYEAR,CODE,POS,SHAREPART,INN) values( SOURCE,ID,ACTUALDATE,NAME,BIRTHDAYYEAR,CODE,POS,SHAREPART,INN)")
-      resparray.push("INSERT INTO EVENTSLIST( SOURCE,ID,EVENTTYPEID,TYPE,DATE) values( SOURCE,ID,EVENTTYPEID,TYPE,DATE)")
-      resparray.push("INSERT INTO EXECUTIVEBODY( SOURCE,ID,ACTUALDATE,NAME,BIRTHDAYYEAR,CODE,POS,SHAREPART,INN) values( SOURCE,ID,ACTUALDATE,NAME,BIRTHDAYYEAR,CODE,POS,SHAREPART,INN)")
-      resparray.push("INSERT INTO FAXLIST( SOURCE,ID,CODE,NUMBER,STATUS) values( SOURCE,ID,CODE,NUMBER,STATUS)")
-      resparray.push("INSERT INTO FEDERALTAXREGISTRATION( SOURCE,ID,REGDATE,REGAUTHORITY,REGAUTHORITYADDRESS) values( SOURCE,ID,REGDATE,REGAUTHORITY,REGAUTHORITYADDRESS)")
-      resparray.push("INSERT INTO FINANCE( SOURCE,ID,BALANCETYPE,PERIODNAME,DATEBEGIN,DATEEND,FORM,SECTION,NAME,CODE,VALUE,IDFINPOK) values( SOURCE,ID,BALANCETYPE,PERIODNAME,DATEBEGIN,DATEEND,FORM,SECTION,NAME,CODE,VALUE,IDFINPOK)")
-      resparray.push("INSERT INTO INCLUDEINLIST( SOURCE,ID,LISTNAME) values( SOURCE,ID,LISTNAME)")
-      resparray.push("INSERT INTO LEADERLIST( SOURCE,ID,FIO,POSITION,ACTUALDATE,INN) values( SOURCE,ID,FIO,POSITION,ACTUALDATE,INN)")
-      resparray.push("INSERT INTO LEGALADDRESSES( SOURCE,ID,POSTCODE,ADDRESS,REGION,AREA,CITY,STREET,HOUSE,FIASCODE,FIASREGION,FIASAREA,FIASCITY,FIASPLACE,FIASSTREET,ACTUALDATE) values( SOURCE,ID,POSTCODE,ADDRESS,REGION,AREA,CITY,STREET,HOUSE,FIASCODE,FIASREGION,FIASAREA,FIASCITY,FIASPLACE,FIASSTREET,ACTUALDATE)")
-      resparray.push("INSERT INTO LOG( SOURCE,ID,WORKER,SND,REP,RESULT) values( SOURCE,ID,WORKER,SND,REP,RESULT)")
-      resparray.push("INSERT INTO LOGERR( DATETIME,SYSCC,ERRMSG) values( DATETIME,SYSCC,ERRMSG)")
-      resparray.push("INSERT INTO OKVEDLIST( SOURCE,ID,CODE,NAME,ISMAIN) values( SOURCE,ID,CODE,NAME,ISMAIN)")
-      resparray.push("INSERT INTO PERSONSWITHOUTWARRANT( SOURCE,ID,ACTUALDATE,NAME,POS,INN) values( SOURCE,ID,ACTUALDATE,NAME,POS,INN)")
-      resparray.push("INSERT INTO PHONELIST( SOURCE,ID,CODE,NUMBER,STATUS) values( SOURCE,ID,CODE,NUMBER,STATUS)")
-      resparray.push("INSERT INTO PREVIOUSADDRESSES( SOURCE,ID,POSTCODE,ADDRESS,REGION,AREA,CITY,STREET,HOUSE,FIASCODE,FIASREGION,FIASAREA,FIASCITY,FIASPLACE,FIASSTREET,ACTUALDATE) values( SOURCE,ID,POSTCODE,ADDRESS,REGION,AREA,CITY,STREET,HOUSE,FIASCODE,FIASREGION,FIASAREA,FIASCITY,FIASPLACE,FIASSTREET,ACTUALDATE)")
-      resparray.push("INSERT INTO REPORT( SOURCE,ID,STATUS,EGRPOINCLUDED,EGRULLIKVIDATION,ISACTING,DATEFIRSTREG,SHORTNAMERUS,SHORTNAMEEN,FULLNAMERUS,NORMNAME,INN,KPP,OGRN,OKPO,FCSMCODE,RTS,OKATO,OKOGU,OKFS,OKOPF,OKOPF_NEW,CHARTERCAPITAL,EMAIL,WWW,WORKERSRANGE,ADDRESS,CREDITRISKVALUE,CREDITRISKDESC,FAILURESCOREVALUE,FAILURESCOREDESC,PAYMENTINDEXVALUE,PAYMENTINDEXDESC,COMPANYSIZE_REVENUE,COMPANYSIZE,SAMETELEPHONECOUNT,SAMEADDRESSCOUNT,SAMEMANAGERCOUNTINCOUNTRY,SAMEMANAGERCOUNTINREGION,INDEXOFDUEDILIGENCE,OKATO_REGIONNAME,OKATO_REGIONCODE,OKOGUNAME,OKFSNAME,STATUSDATE,INDEXOFDUEDILIGENCEDESC,OKOPF_NAME) values( SOURCE,ID,STATUS,EGRPOINCLUDED,EGRULLIKVIDATION,ISACTING,DATEFIRSTREG,SHORTNAMERUS,SHORTNAMEEN,FULLNAMERUS,NORMNAME,INN,KPP,OGRN,OKPO,FCSMCODE,RTS,OKATO,OKOGU,OKFS,OKOPF,OKOPF_NEW,CHARTERCAPITAL,EMAIL,WWW,WORKERSRANGE,ADDRESS,CREDITRISKVALUE,CREDITRISKDESC,FAILURESCOREVALUE,FAILURESCOREDESC,PAYMENTINDEXVALUE,PAYMENTINDEXDESC,COMPANYSIZE_REVENUE,COMPANYSIZE,SAMETELEPHONECOUNT,SAMEADDRESSCOUNT,SAMEMANAGERCOUNTINCOUNTRY,SAMEMANAGERCOUNTINREGION,INDEXOFDUEDILIGENCE,OKATO_REGIONNAME,OKATO_REGIONCODE,OKOGUNAME,OKFSNAME,STATUSDATE,INDEXOFDUEDILIGENCEDESC,OKOPF_NAME)")
-      resparray.push("INSERT INTO REQDATA( SOURCE,ID,INN) values( SOURCE,ID,INN)")
-      resparray.push("INSERT INTO STATECONTRACTS_FL223( SOURCE,ID,YEAR,ADMITTEDNUMBER,NOTADMITTEDNUMBER,WINNERNUMBER,SIGNEDNUMBER,SUM) values( SOURCE,ID,YEAR,ADMITTEDNUMBER,NOTADMITTEDNUMBER,WINNERNUMBER,SIGNEDNUMBER,SUM)")
-      resparray.push("INSERT INTO STATECONTRACTS_FL94( SOURCE,ID,YEAR,ADMITTEDNUMBER,NOTADMITTEDNUMBER,WINNERNUMBER,SIGNEDNUMBER,SUM) values( SOURCE,ID,YEAR,ADMITTEDNUMBER,NOTADMITTEDNUMBER,WINNERNUMBER,SIGNEDNUMBER,SUM)")
-      resparray.push("INSERT INTO STRUCTUREINFO( SOURCE,ID,COUNTCOOWNERFCSM,COUNTCOOWNERROSSTAT,COUNTCOOWNEREGRUL,COUNTBRANCH,COUNTBRANCHROSSTAT,COUNTAFFILIATEDCOMPANYFCSM,COUNTAFFILIATEDCOMPANYROSSTAT,COUNTAFFILIATEDCOMPANYEGRUL,NONPROFITORGANIZATIONROSSTAT) values( SOURCE,ID,COUNTCOOWNERFCSM,COUNTCOOWNERROSSTAT,COUNTCOOWNEREGRUL,COUNTBRANCH,COUNTBRANCHROSSTAT,COUNTAFFILIATEDCOMPANYFCSM,COUNTAFFILIATEDCOMPANYROSSTAT,COUNTAFFILIATEDCOMPANYEGRUL,NONPROFITORGANIZATIONROSSTAT)")
-      resparray.push("INSERT INTO TABLES( TABLE_NAME,TABLE_DESCRIPTION) values( TABLE_NAME,TABLE_DESCRIPTION)")
-      resparray.push("INSERT INTO VESTNIKMESSAGE( SOURCE,ID,DATE,TYPE,CASENUMBER,IDTYPE,TEXT) values( SOURCE,ID,DATE,TYPE,CASENUMBER,IDTYPE,TEXT)")
+  report = response.Response.Data.Report
+    if(report){
+      //Edit ftw
+      if (report.ArbitrationCases){
+      report.ArbitrationCases.Year.forEach((year)=>{
+        year.Plaintiff_CasesNumber = year.Plaintiff['@CasesNumber']
+        year.Plaintiff_Sum = year.Plaintiff['@Sum']
+        year.Defendant_CasesNumber = year.Defendant['@CasesNumber']
+        year.Defendant_Sum = year.Defendant['@Sum']
+        year.ThirdOrOtherPerson_CasesNumber = year.ThirdOrOtherPerson['@CasesNumber']
+      })}
+      if (report.BoardOfDirectors){
+      report.BoardOfDirectors.Member = injectToArray(report.BoardOfDirectors.Member,ActualDate,report.BoardOfDirectors['@ActualDate'])
+      report.BoardOfDirectors.Member.forEach((member)=>{
+          member.PositionName = member.Position['@Name']
+          member.PositionCode = member.Position['@Code']
+      })}
+      if (report.ExecutiveBody){
+      report.ExecutiveBody.Member = injectToArray(report.ExecutiveBody.Member,ActualDate,report.ExecutiveBody['@ActualDate'])
+      report.ExecutiveBody.Member.forEach((member)=>{
+          member.PositionName = member.Position['@Name']
+          member.PositionCode = member.Position['@Code']
+      })
+      }
+      if (report.Finance){
+      report.Finance.FinPeriod.StringList.String = (report.Finance.FinPeriod.StringList.String,BalanceType,report.Finance['@BalanceType'])
+      report.Finance.FinPeriod.forEach((finperiod)=>{
+        finperiod.StringList.String.forEach((string)=>{
+          string.PeriodName = finperiod["@PeriodName"]
+          string.DateBegin = finperiod["@DateBegin"]
+          string.DateEnd = finperiod["@DateEnd"]
+        })
+      })}
+      report.PersonsWithoutWarrant.Person = injectToArray(report.PersonsWithoutWarrant.Person,ActualDate,report.PersonsWithoutWarrant['@ActualDate'])
+      report.Status = report.Status['@Type']
+      report.OKOPF_New = report.OKOPF['@CodeNew']
+      report.AdjustAddress = report.AdjustAddress['@Address']
+      report.CreditRiskValue = report.CreditRisk['@CreditRiskValue']
+      report.CreditRiskDesc = report.CreditRisk['@CreditRiskDesc']
+      report.FailureScoreValue = report.FailureScore['@FailureScoreValue']
+      report.FailureScoreDesc = report.FailureScore['@FailureScoreDesc']
+      report.PaymentIndexValue = report.PaymentIndex['@PaymentIndexValue']
+      report.PaymentIndexDesc = report.PaymentIndex['@PaymentIndexDesc']
+      report.CompanySizeRevenue = report.CompanySize['@Revenue']
+      report.CompanySizeDescription = report.CompanySize['@Description']
+      report.SamePhone =  report.CompanyWithSameInfo.TelephoneCount
+      report.SameAddress =  report.CompanyWithSameInfo.AddressCount
+      report.SameManagerCountry =  report.CompanyWithSameInfo.ManagerCountInCountry
+      report.SameManagerRegion =  report.CompanyWithSameInfo.ManagerCountInRegion
+      report.IndexOfDueDiligenceIndex = report.IndexOfDueDiligence['@Index']
+      report.IndexOfDueDiligenceIndexDesc = report.IndexOfDueDiligence['@Index']
+      report.OKATORegionName = report.OKATO['@RegionName']
+      report.OKATORegionCode = report.OKATO['@RegionCode']
+      report.OKATO = report.OKATO['@Code']
+      report.OKOGUCode = report.OKOGU['@Code']
+      report.OKOGUName = report.OKOGU['@Name']
+      report.OKFSCode = report.OKFS['@Code']
+      report.OKFSName = report.OKFS['@Name']
+      report.StatusDate = report.Status['@Date']
+      report.OKOPFCode = report.OKOPF['@Code']
+      report.OKOPFName = report.OKOPF['@Name']
+      if (report.StateContracts.FederalLaw223){
+      report.StateContracts.FederalLaw223.Year.forEach((year)=>{
+        year.AdmittedNumber = year.Tenders["@AdmittedNumber"]
+        year.NotAdmittedNumber = year.Tenders["@NotAdmittedNumber"]
+        year.WinnerNumber = year.Tenders["@WinnerNumber"]
+        year.SignedNumber = year.Contracts["@SignedNumber"]
+        year.Sum = year.Contracts["@Sum"]
+      })}
+      if(report.StateContracts.FederalLaw94){
+      report.StateContracts.FederalLaw94.Year.forEach((year)=>{
+        year.AdmittedNumber = year.Tenders["@AdmittedNumber"]
+        year.NotAdmittedNumber = year.Tenders["@NotAdmittedNumber"]
+        year.WinnerNumber = year.Tenders["@WinnerNumber"]
+        year.SignedNumber = year.Contracts["@SignedNumber"]
+        year.Sum = year.Contracts["@Sum"]
+      })}
+      dataStructure.forEach((entity)=>{
+        rows = jp.query(report,entity.path)
+        if (rows){
+          if (Array.isArray(rows)){
+            for (row=0;row++;row<rows.length){
+              res = "INSERT INTO "+ entity.name+" ("
+              entity.structure.forEach((attr)=>{
+                if (attr.name!=entity.structure[entity.structure.length-1]){
+                res+=attr.name+","
+                } else(res+=attr.name)
+              })
+              res+=") values("
+              entity.structure.forEach((attr)=>{
+                if (attr.name!=entity.structure[entity.structure.length-1]){
+                res+=jp.query(report,entity.path+"["+row+"]["+attr.path+"]")+","
+                } else{
+                  res+=jp.query(report,entity.path[attr.path])
+                }
+              })
+              res+=")"
+              console.log(res)
+              resparray.push(res)
+            }
+          }
+      
+        }
+        else{
 
-      result = "found";
-    }
-  } else {
-    resparray.push("insert into resdata(source,id,found,listname) values('"+source+"','"+id+"','"+"N"+"','"+""+"')")
+        }
+      })
+
+     } else {
+    
     result = "not found";
   }}
   multiquery(resparray,()=>{
