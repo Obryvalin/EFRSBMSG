@@ -370,7 +370,7 @@ const submitResponse = (source,id,response,callback) =>{
 const insertQueries = (source, inns, callback) => {
   var reqid = 0;
   inns.forEach((inn) => {
-    if (INN.validateINN(inn)) {
+    if (validate.INN(inn)) {
       log.timestamp("inserting "+inn)
       insertRequest(source, reqid, inn);
     } else {
