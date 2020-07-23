@@ -198,7 +198,7 @@ const run = (workerName,callback) =>{
         if (requests)
         {
           requests.forEach((request)=>{
-            CRE.requestSPEXT(request.inn,(error,result)=>{
+            CRE.requestSPEXT({inn:request.inn},(error,result)=>{
               if (error){
                 fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
                 log.timestamp("Error for Source:"+request.source+",ID:"+request.id)
