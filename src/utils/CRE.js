@@ -1,12 +1,11 @@
 const request = require("request");
-const soap = require("soap")
 const validate = require("./validate.js");
 const log = require("./log");
 const fs = require("fs");
 const xml = require("./xml");
 
 const CREoptions = JSON.parse(fs.readFileSync("conf/CRE.json"));
-const { url, timeout } = CREoptions;
+const { url, wsdl, timeout } = CREoptions;
 const templateXML = fs.readFileSync("template.xml").toString();
 
 const fillTemplate = (propObj, template) => {
@@ -24,13 +23,15 @@ const requestSPEXT = (reqdata, callback) => {
     }
   }
 
-  console.log(CREoptions);
-
   const body = fillTemplate(reqdata, fillTemplate(CREoptions, templateXML));
 
-  // console.log(body)
+  console.log(body);
 
-  const headers = { "Content-Type": "text/xml" };
+  const headers = {
+    "Content-Type": "text/xml;charset=UTF-8",
+
+    soapAction: "getBusiness",
+  };
 
   request({ url, headers, body, timeout }, (error, resp) => {
     console.log(error);
@@ -55,6 +56,7 @@ const requestSPEXT = (reqdata, callback) => {
       } else {
         xml.toJSON(
           xml.fixTags(res.Envelope.Body.getBusinessout.response.value),
+
           (err, res) => {
             if (err) {
               callback("error parsing", undefined);

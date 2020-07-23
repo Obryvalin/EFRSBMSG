@@ -17,6 +17,7 @@
     "connect-timeout": "^1.9.0",
     "csv-parser": "^2.3.3",
     "date-format": "^3.0.0",
+    "easy-soap-request": "^3.3.2",
     "express": "^4.17.1",
     "fast-xml-parser": "^3.17.4",
     "hbs": "^4.1.1",
