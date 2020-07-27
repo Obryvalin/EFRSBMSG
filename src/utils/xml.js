@@ -15,13 +15,13 @@ const xmloptions = {
 
 
 const fixTags = (xml)=>{
-   console.log(xml)
+  //  console.log(xml)
    xml = xml.replace(/&amp;amp;/g,'&') 
    xml = xml.replace(/&lt;/g,"<")
    xml = xml.replace(/&gt;/g,">")
    xml = xml.replace(/&quot;/g,'"')
    xml = xml.replace(/&apos;/g,"'")
-      console.log(xml)
+      // console.log(xml)
       return xml
 }
  
@@ -38,7 +38,7 @@ const toJSON = (xml, callback) => {
   if (!fastxml.validate(xml)) {
     callback("Validation Failed", undefined);
   }
-  log.timestamp("valid");
+  // log.timestamp("valid");
   json = fastxml.parse(xml, xmloptions);
   callback(undefined, json);
 };

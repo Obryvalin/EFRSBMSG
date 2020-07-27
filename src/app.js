@@ -148,12 +148,33 @@ yargs.command({
   describe: "Testing current developement routine",
 
   handler() {
-    pgsql.getStats((stats)=>{
-      
+    workerName ="test"
+    pgsql.grabRequests(workerName,grabCount,()=>{
+      pgsql.getUnfinishedRequests(workerName,cooldown,(requests)=>{
+        if (requests)
+        { 
+          // console.log(requests)
+          requests.forEach((request)=>{
+            CRE.requestSPEXT({inn:request.inn,uid:request.id},(error,result)=>{
+              if (error || !result.response["@response"]){
+                log.timestamp("ERROR:\t"+chalk.redBright(request.source+"-"+request.id))
+                fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
+                log.timestamp("Error for Source:"+request.source+",ID:"+request.id)
+                // pgsql.logError("Error for Source:"+request.source+",ID:"+request.id)
+              }
+              if (result){
+                log.timestamp("Response:\t"+chalk.greenBright(request.source+"-"+request.id))
+                fs.writeFile(resdir+"\\"+request.source+request.id+".json",JSON.stringify(result),()=>{})
+                 pgsql.submitResponse(request.source,request.id,result.response.JSON,()=>{
+                })
+              }
+            })
+          })
+        }
+      })
     })
-    
-  },
-});
+  }
+})
 
 
 yargs.command({

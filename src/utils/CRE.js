@@ -1,4 +1,4 @@
-const request = require("request");
+const request = require("easy-soap-request");
 const validate = require("./validate.js");
 const log = require("./log");
 const fs = require("fs");
@@ -16,6 +16,12 @@ const fillTemplate = (propObj, template) => {
   return template;
 };
 
+const  makeRequest = async (url,headers,body,timeout)=>{
+  result = await request({ url, headers, xml:body, timeout })
+  
+  return result.response
+}
+
 const requestSPEXT = (reqdata, callback) => {
   if (!validate.INN(reqdata.inn)) {
     if (callback) {
@@ -25,50 +31,48 @@ const requestSPEXT = (reqdata, callback) => {
 
   const body = fillTemplate(reqdata, fillTemplate(CREoptions, templateXML));
 
-  console.log(body);
+  // console.log(body);
 
   const headers = {
     "Content-Type": "text/xml;charset=UTF-8",
-
-    soapAction: "getBusiness",
+    
+    soapAction: "urn:getBusiness",
   };
 
-  request({ url, headers, body, timeout }, (error, resp) => {
-    console.log(error);
-
-    console.log(resp.body);
-
-    if (error) {
-      callback(error, undefined);
-    }
-
-    if (resp) {
-      //   log.timestamp(resp.body.response.state)
-
-      xml.toJSON(resp.body, (err, res) => {
-        if (!res.Envelope.Body.getBusinessout.response["@response"]) {
-          callback("No response", undefined);
+    resp = makeRequest(url,headers,body,timeout).then((soapedRes)=>
+    {
+      if (soapedRes.statusCode != 200) {
+        callback("Error statusCode "+soapedRes.statusCode, undefined);
+      }
+  
+      if (soapedRes.body) {
+        // console.log("RESP BODY\n" + resp.body)
+        xml.toJSON(soapedRes.body, (err, soapedJSON) => {
+        if (err){
+          console.log("err\n"+err)
+          callback(err,undefined)
+  
+        } 
+        if (!err)
+        {
+          
+          const response = soapedJSON.Envelope.Body.getBusinessout
+          response.response.value = xml.fixTags(response.response.value)
+          xml.toJSON(response.response.value,(err,JSON)=>{
+            
+            response.response.JSON = JSON 
+            // console.log("Response:") 
+            // console.log(response)            
+            callback(undefined,response)
+          })
         }
-      });
-
-      if (!res.Envelope.Body.getBusinessout.response.value) {
-        callback("Service Error", undefined, undefined);
-      } else {
-        xml.toJSON(
-          xml.fixTags(res.Envelope.Body.getBusinessout.response.value),
-
-          (err, res) => {
-            if (err) {
-              callback("error parsing", undefined);
-            }
-
-            callback(undefined, res);
-          }
-        );
+        });
       }
     }
-  });
-};
+    )
+    
+  }
+
 
 module.exports = {
   fillTemplate: fillTemplate,

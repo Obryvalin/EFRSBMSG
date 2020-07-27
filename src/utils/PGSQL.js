@@ -4,7 +4,9 @@ const fs = require("fs");
 const validate = require("./validate");
 const path = require('path')
 const log = require('./log')
-const jp = require('jsonpath')
+const jp = require('jsonpath');
+const mapFactory = require("map-factory")
+
 
 const pgoptions = JSON.parse(fs.readFileSync("conf/pg.json").toString());
 const { dropQueries, createQueries, backupdir, dataStructure} = pgoptions;
@@ -231,9 +233,11 @@ const getResponseData = (source,id,callback)=>{
 
     
 const injectToArray = (VarArray,name,value) =>{
+  if(!VarArray){return undefined}
+if(!value){return VarArray}
   if(Array.isArray(VarArray)){
     VarArray.forEach((item)=>{
-          item[name] = value; 
+         item[name] = value; 
       })
       return VarArray;
   }
@@ -241,6 +245,19 @@ const injectToArray = (VarArray,name,value) =>{
     VarArray[name]=value;
   }
   return VarArray;
+}
+
+const safeInject = (obj,path) =>{
+  try {
+    if (obj && obj.hasOwnProperty(path)){
+      return obj[path]
+    }
+    else return undefined
+  } catch (error) {
+    
+  }
+  
+  // return jp.query(obj,"$."+path+'[0]')
 }
   
 const submitResponse = (source,id,response,callback) =>{
@@ -250,86 +267,129 @@ const submitResponse = (source,id,response,callback) =>{
   if (response) {
   report = response.Response.Data.Report
     if(report){
-      //Edit ftw
+      const mapper=mapFactory()
+      // console.log("Report transform")
       if (report.ArbitrationCases){
-      report.ArbitrationCases.Year.forEach((year)=>{
-        year.Plaintiff_CasesNumber = year.Plaintiff['@CasesNumber']
-        year.Plaintiff_Sum = year.Plaintiff['@Sum']
-        year.Defendant_CasesNumber = year.Defendant['@CasesNumber']
-        year.Defendant_Sum = year.Defendant['@Sum']
-        year.ThirdOrOtherPerson_CasesNumber = year.ThirdOrOtherPerson['@CasesNumber']
-      })}
+        report.ArbitrationCases.Year.forEach((year)=>{
+          mapper.map("Plaintiff[@CasesNumber]).to("Plaintiff_CaseNumber")
+          mapper.map("Plaintiff[@Sum]).to("Plaintiff_Sum")
+          mapper.map("Defendant[@CasesNumber]").to("Defendant_CasesNumber")
+          mapper.map("Defendant[@Sum]").to("Defendant_Sum")
+          mapper.map("ThirdOrOtherPerson[@CasesNumber]").to("ThirdOrOtherPerson_CasesNumber")
+          year = Object.assign(year,mapper.execute(year))
+        }
+      )}
       if (report.BoardOfDirectors){
-      report.BoardOfDirectors.Member = injectToArray(report.BoardOfDirectors.Member,ActualDate,report.BoardOfDirectors['@ActualDate'])
-      report.BoardOfDirectors.Member.forEach((member)=>{
-          member.PositionName = member.Position['@Name']
-          member.PositionCode = member.Position['@Code']
-      })}
+        report.BoardOfDirectors.Member = injectToArray(report.BoardOfDirectors.Member,"ActualDate",report.BoardOfDirectors['@ActualDate'])
+        report.BoardOfDirectors.Member.forEach((member)=>{
+
+          mapper.map("Position[@Name]").to("PositionName")
+          mapper.map("Position[@Code]").to("PositionCode")
+          member = Object.assign(member,mapper.execute(member))
+        }
+      )}
       if (report.ExecutiveBody){
-      report.ExecutiveBody.Member = injectToArray(report.ExecutiveBody.Member,ActualDate,report.ExecutiveBody['@ActualDate'])
-      report.ExecutiveBody.Member.forEach((member)=>{
-          member.PositionName = member.Position['@Name']
-          member.PositionCode = member.Position['@Code']
+        report.ExecutiveBody.Member = injectToArray(report.ExecutiveBody.Member,"ActualDate",report.ExecutiveBody['@ActualDate'])
+        report.ExecutiveBody.Member.forEach((member)=>{
+          mapper.map("Position[@Name]").to("PositionName")
+          mapper.map("Position[@Code]").to("PositionCode")
+          member = Object.assign(member,mapper.execute(member))
       })
       }
-      if (report.Finance){
-      report.Finance.FinPeriod.StringList.String = (report.Finance.FinPeriod.StringList.String,BalanceType,report.Finance['@BalanceType'])
-      report.Finance.FinPeriod.forEach((finperiod)=>{
+      if (report.Finance.FinPeriod.StringList){
+        report.Finance.FinPeriod.StringList.String = injectToArray(report.Finance.FinPeriod.StringList.String,"BalanceType",report.Finance['@BalanceType'])
+        report.Finance.FinPeriod.forEach((finperiod)=>{
         finperiod.StringList.String.forEach((string)=>{
-          string.PeriodName = finperiod["@PeriodName"]
-          string.DateBegin = finperiod["@DateBegin"]
-          string.DateEnd = finperiod["@DateEnd"]
+          mapper.map("finperiod[@PeriodName]").to("PeriodName")
+          mapper.map("finperiod[@DateBegin]").to("DateBegin")
+          mapper.map("finperiod[@DateEnd]").to("DateEnd")
+          string = Object.assign(string,mapper.execute(string))
         })
-      })}
-      report.PersonsWithoutWarrant.Person = injectToArray(report.PersonsWithoutWarrant.Person,ActualDate,report.PersonsWithoutWarrant['@ActualDate'])
-      report.Status = report.Status['@Type']
-      report.OKOPF_New = report.OKOPF['@CodeNew']
-      report.AdjustAddress = report.AdjustAddress['@Address']
-      report.CreditRiskValue = report.CreditRisk['@CreditRiskValue']
-      report.CreditRiskDesc = report.CreditRisk['@CreditRiskDesc']
-      report.FailureScoreValue = report.FailureScore['@FailureScoreValue']
-      report.FailureScoreDesc = report.FailureScore['@FailureScoreDesc']
-      report.PaymentIndexValue = report.PaymentIndex['@PaymentIndexValue']
-      report.PaymentIndexDesc = report.PaymentIndex['@PaymentIndexDesc']
-      report.CompanySizeRevenue = report.CompanySize['@Revenue']
-      report.CompanySizeDescription = report.CompanySize['@Description']
-      report.SamePhone =  report.CompanyWithSameInfo.TelephoneCount
-      report.SameAddress =  report.CompanyWithSameInfo.AddressCount
-      report.SameManagerCountry =  report.CompanyWithSameInfo.ManagerCountInCountry
-      report.SameManagerRegion =  report.CompanyWithSameInfo.ManagerCountInRegion
-      report.IndexOfDueDiligenceIndex = report.IndexOfDueDiligence['@Index']
-      report.IndexOfDueDiligenceIndexDesc = report.IndexOfDueDiligence['@Index']
-      report.OKATORegionName = report.OKATO['@RegionName']
-      report.OKATORegionCode = report.OKATO['@RegionCode']
-      report.OKATO = report.OKATO['@Code']
-      report.OKOGUCode = report.OKOGU['@Code']
-      report.OKOGUName = report.OKOGU['@Name']
-      report.OKFSCode = report.OKFS['@Code']
-      report.OKFSName = report.OKFS['@Name']
-      report.StatusDate = report.Status['@Date']
-      report.OKOPFCode = report.OKOPF['@Code']
-      report.OKOPFName = report.OKOPF['@Name']
-      if (report.StateContracts.FederalLaw223){
-      report.StateContracts.FederalLaw223.Year.forEach((year)=>{
-        year.AdmittedNumber = year.Tenders["@AdmittedNumber"]
-        year.NotAdmittedNumber = year.Tenders["@NotAdmittedNumber"]
-        year.WinnerNumber = year.Tenders["@WinnerNumber"]
-        year.SignedNumber = year.Contracts["@SignedNumber"]
-        year.Sum = year.Contracts["@Sum"]
-      })}
+      }
+    )}
+    if (report.StateContracts){
+      if(report.StateContracts.FederalLaw223){
+        if (Array.isArray(report.StateContracts.FederalLaw223.Year)){
+        report.StateContracts.FederalLaw223.Year.forEach((year)=>{
+          mapper.map("Tenders[@AdmittedNumber]").to("AdmittedNumber")
+          mapper.map("Tenders[@NotAdmittedNumber]").to("NotAdmittedNumber")
+          mapper.map("Tenders[@WinnerNumber]").to("WinnerNumber")
+          mapper.map("Contracts[@SignedNumber]").to("SignedNumber")
+          mapper.map("Contracts[@Sum]").to("Sum")
+          year = Object.assign(year,mapper.execute(year))
+        }
+      )}
+   
+      else{
+        
+        mapper.map("Tenders[@AdmittedNumber]").to("AdmittedNumber")
+        mapper.map("Tenders[@NotAdmittedNumber]").to("NotAdmittedNumber")
+        mapper.map("Tenders[@WinnerNumber]").to("WinnerNumber")
+        mapper.map("Contracts[@SignedNumber]").to("SignedNumber")
+        mapper.map("Contracts[@Sum]").to("Sum")
+        report.StateContracts.FederalLaw223.Year = Object.assign(report.StateContracts.FederalLaw223.Year,mapper.execute(report.StateContracts.FederalLaw223.Year))
+      }
+    }
       if(report.StateContracts.FederalLaw94){
-      report.StateContracts.FederalLaw94.Year.forEach((year)=>{
-        year.AdmittedNumber = year.Tenders["@AdmittedNumber"]
-        year.NotAdmittedNumber = year.Tenders["@NotAdmittedNumber"]
-        year.WinnerNumber = year.Tenders["@WinnerNumber"]
-        year.SignedNumber = year.Contracts["@SignedNumber"]
-        year.Sum = year.Contracts["@Sum"]
+        if (Array.isArray(report.StateContracts.FederalLaw94.Year)){
+          report.StateContracts.FederalLaw94.Year.forEach((year)=>{
+            mapper.map("Tenders[@AdmittedNumber]").to("AdmittedNumber")
+            mapper.map("Tenders[@NotAdmittedNumber]").to("NotAdmittedNumber")
+            mapper.map("Tenders[@WinnerNumber]").to("WinnerNumber")
+            mapper.map("Contracts[@SignedNumber]").to("SignedNumber")
+            mapper.map("Contracts[@Sum]").to("Sum")
+            year = Object.assign(year,mapper.execute(year))
       })}
+      else{
+        mapper.map("Tenders[@AdmittedNumber]").to("AdmittedNumber")
+        mapper.map("Tenders[@NotAdmittedNumber]").to("NotAdmittedNumber")
+        mapper.map("Tenders[@WinnerNumber]").to("WinnerNumber")
+        mapper.map("Contracts[@SignedNumber]").to("SignedNumber")
+        mapper.map("Contracts[@Sum]").to("Sum")
+        report.StateContracts.FederalLaw94.Year = Object.assign(report.StateContracts.FederalLaw94.Year,mapper.execute(report.StateContracts.FederalLaw94.Year))
+      }
+    }
+    }
+      report.PersonsWithoutWarrant.Person = injectToArray(report.PersonsWithoutWarrant.Person,"ActualDate",report.PersonsWithoutWarrant['@ActualDate'])
+      mapper.map("Status[@Type]").to("Status")
+      mapper.map("OKOPF[@CodeNew]").to("OKOPF_New")
+      mapper.map("AdjustAddress[@Address]").to("AdjustAddress")
+      mapper.map("CreditRisk[@CreditRiskValue]").to("CreditRiskValue")
+      mapper.map("CreditRisk[@CreditRiskDesc]").to("CreditRiskDesc")
+      mapper.map("FailureScore[@FailureScoreValue]").to("FailureScoreValue")
+      mapper.map("FailureScore[@FailureScoreDesc]").to("FailureScoreDesc")
+      mapper.map("PaymentIndex[@PaymentIndexValue]").to("PaymentIndexValue")
+      mapper.map("PaymentIndex[@PaymentIndexDesc]").to("PaymentIndexDesc")
+      mapper.map("CompanySize[@Revenue]").to("CompanySizeRevenue")
+      mapper.map("CompanySize[@Description]"),to("CompanySizeDescription")
+      mapper.map("CompanyWithSameInfo.AddressCount").to("SameAddress")
+      mapper.map("CompanyWithSameInfo.ManagerCountInCountry").to("SameManagerCountry")
+      mapper.map("CompanyWithSameInfo.ManagerCountInCountry").to("SameManagerCountry")
+      mapper.map("CompanyWithSameInfo.ManagerCountInRegion").to("SameManagerRegion")
+
+      mapper.map("IndexOfDueDiligence[@Index]").to("IndexOfDueDiligenceIndex")
+      mapper.map("IndexOfDueDiligence[@Index]").to("IndexOfDueDiligenceIndexDesc")
+      mapper.map("OKATO[@RegionName]").to("OKATORegionName")
+      mapper.map("OKATO[@RegionCode]").to("OKATORegionCode")
+      mapper.map("OKATO[@Code]").to("OKATO")
+      mapper.map("OKOGU[@Name]").to("OKOGUCode")
+      mapper.map("OKOGU[@Name]").to("OKOGUName")
+      mapper.map("OKFS[@Code]").to("OKFSCode")
+      mapper.map("OKFS[@Name]").to("OKFSName")
+      mapper.map("Status[@Date]").to("StatusDate")
+      mapper.map("OKOPF[@Name]").to("OKOPFName")
+      report = Object.assign(report.mapper.execute(report))
+      
+      // console.log (report)
+      log.timestamp("Creating queries for "+source+"-"+id)
       dataStructure.forEach((entity)=>{
         rows = jp.query(report,entity.path)
+        console.log("Rows "+entity.name+": ")
+        console.log(rows)
+        
         if (rows){
           if (Array.isArray(rows)){
-            for (row=0;row++;row<rows.length){
+            for (row=0;row<rows.length;row++){
               res = "INSERT INTO "+ entity.name+" ("
               entity.structure.forEach((attr)=>{
                 if (attr.name!=entity.structure[entity.structure.length-1]){
@@ -339,15 +399,35 @@ const submitResponse = (source,id,response,callback) =>{
               res+=") values("
               entity.structure.forEach((attr)=>{
                 if (attr.name!=entity.structure[entity.structure.length-1]){
-                res+=jp.query(report,entity.path+"["+row+"]["+attr.path+"]")+","
+                res+=jp.query(report,entity.path+"["+row+']["'+attr.path+'"]'+"[0]")+","
                 } else{
-                  res+=jp.query(report,entity.path[attr.path])
+                  res+=jp.query(report,entity.path[attr.path]+"[0]")
                 }
               })
               res+=")"
+              console.log("Res:")
               console.log(res)
               resparray.push(res)
             }
+          } else{
+            res = "INSERT INTO "+ entity.name+" ("
+              entity.structure.forEach((attr)=>{
+                if (attr.name!=entity.structure[entity.structure.length-1]){
+                res+=attr.name+","
+                } else(res+=attr.name)
+              })
+              res+=") values("
+              entity.structure.forEach((attr)=>{
+                if (attr.name!=entity.structure[entity.structure.length-1]){
+                res+=jp.query(report,entity.path+'[0]["'+attr.path+'"]'+"[0]")+","
+                } else{
+                  res+=jp.query(report,entity.path[attr.path]+"[0]")
+                }
+              })
+              res+=")"
+              console.log("Res:")
+              console.log(res)
+              resparray.push(res)
           }
       
         }
@@ -360,6 +440,8 @@ const submitResponse = (source,id,response,callback) =>{
     
     result = "not found";
   }}
+  console.log("RespArray")
+  console.log(resparray)
   multiquery(resparray,()=>{
     log.timestamp("Response: " + chalk.greenBright(source+"-"+id))
     logResponse(source,id,result);
