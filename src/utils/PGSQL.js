@@ -40,9 +40,11 @@ const multiquery = (queries, callback) => {
   var donecnt = 0;
   
   queries.forEach((query) => {
+    
     pool.query(query, (err, res) => {
       if (err) {
         log.timestamp(chalk.red(err))
+        log.timestamp("Query was: "+query)
         logError(chalk.red(err));
       }
       donecnt = donecnt + 1;
@@ -55,6 +57,10 @@ const multiquery = (queries, callback) => {
     
       callback();
     }
+    if (donecnt > qcnt){
+      console.log("Multiquery error! Donecnt:"+donecnt+", qcnt:"+qcnt)
+    }
+    
   }, 50);
 };
 
@@ -166,7 +172,9 @@ const logSend = (source,id,callback) =>{
 }
 
 const logResponse = (source,id,result,callback) =>{
+  
   sql = "Update log set rep = current_timestamp, result='"+result+"' where source = '"+source+"' and id = '"+id+"'";
+  console.log("logResponse  "+sql)
   query(sql,()=>{
     if(callback){callback();}
   });
@@ -247,18 +255,10 @@ if(!value){return VarArray}
   return VarArray;
 }
 
-const safeInject = (obj,path) =>{
-  try {
-    if (obj && obj.hasOwnProperty(path)){
-      return obj[path]
-    }
-    else return undefined
-  } catch (error) {
-    
-  }
+
   
   // return jp.query(obj,"$."+path+'[0]')
-}
+
   
 const submitResponse = (source,id,response,callback) =>{
   var resparray=[];
@@ -266,13 +266,14 @@ const submitResponse = (source,id,response,callback) =>{
 
   if (response) {
   report = response.Response.Data.Report
+  resultInfo = response.Response.ResultInfo
     if(report){
       const mapper=mapFactory()
       // console.log("Report transform")
       if (report.ArbitrationCases){
         report.ArbitrationCases.Year.forEach((year)=>{
-          mapper.map("Plaintiff[@CasesNumber]).to("Plaintiff_CaseNumber")
-          mapper.map("Plaintiff[@Sum]).to("Plaintiff_Sum")
+          mapper.map("Plaintiff[@CasesNumber]").to("Plaintiff_CaseNumber")
+          mapper.map("Plaintiff[@Sum]").to("Plaintiff_Sum")
           mapper.map("Defendant[@CasesNumber]").to("Defendant_CasesNumber")
           mapper.map("Defendant[@Sum]").to("Defendant_Sum")
           mapper.map("ThirdOrOtherPerson[@CasesNumber]").to("ThirdOrOtherPerson_CasesNumber")
@@ -296,40 +297,38 @@ const submitResponse = (source,id,response,callback) =>{
           member = Object.assign(member,mapper.execute(member))
       })
       }
-      if (report.Finance.FinPeriod.StringList){
-        report.Finance.FinPeriod.StringList.String = injectToArray(report.Finance.FinPeriod.StringList.String,"BalanceType",report.Finance['@BalanceType'])
-        report.Finance.FinPeriod.forEach((finperiod)=>{
-        finperiod.StringList.String.forEach((string)=>{
-          mapper.map("finperiod[@PeriodName]").to("PeriodName")
-          mapper.map("finperiod[@DateBegin]").to("DateBegin")
-          mapper.map("finperiod[@DateEnd]").to("DateEnd")
-          string = Object.assign(string,mapper.execute(string))
-        })
-      }
-    )}
-    if (report.StateContracts){
-      if(report.StateContracts.FederalLaw223){
-        if (Array.isArray(report.StateContracts.FederalLaw223.Year)){
-        report.StateContracts.FederalLaw223.Year.forEach((year)=>{
+      report.Finance.FinPeriod.forEach((period)=>{
+        if (period.StringList){
+          period.StringList.String = injectToArray(period.StringList.String,"BalanceType",report.Finance['@BalanceType'])
+          period.StringList.String = injectToArray(period.StringList.String,"PeriodName",period['@PeriodName'])
+          period.StringList.String = injectToArray(period.StringList.String,"DateBegin",period['@DateBegin'])
+          period.StringList.String = injectToArray(period.StringList.String,"DateEnd",period['@DateEnd'])
+        }
+      })
+      
+      if (report.StateContracts){
+        if(report.StateContracts.FederalLaw223){
+          if (Array.isArray(report.StateContracts.FederalLaw223.Year)){
+          report.StateContracts.FederalLaw223.Year.forEach((year)=>{
+            mapper.map("Tenders[@AdmittedNumber]").to("AdmittedNumber")
+            mapper.map("Tenders[@NotAdmittedNumber]").to("NotAdmittedNumber")
+            mapper.map("Tenders[@WinnerNumber]").to("WinnerNumber")
+            mapper.map("Contracts[@SignedNumber]").to("SignedNumber")
+            mapper.map("Contracts[@Sum]").to("Sum")
+            year = Object.assign(year,mapper.execute(year))
+          }
+        )}
+    
+        else{
+          
           mapper.map("Tenders[@AdmittedNumber]").to("AdmittedNumber")
           mapper.map("Tenders[@NotAdmittedNumber]").to("NotAdmittedNumber")
           mapper.map("Tenders[@WinnerNumber]").to("WinnerNumber")
           mapper.map("Contracts[@SignedNumber]").to("SignedNumber")
           mapper.map("Contracts[@Sum]").to("Sum")
-          year = Object.assign(year,mapper.execute(year))
+          report.StateContracts.FederalLaw223.Year = Object.assign(report.StateContracts.FederalLaw223.Year,mapper.execute(report.StateContracts.FederalLaw223.Year))
         }
-      )}
-   
-      else{
-        
-        mapper.map("Tenders[@AdmittedNumber]").to("AdmittedNumber")
-        mapper.map("Tenders[@NotAdmittedNumber]").to("NotAdmittedNumber")
-        mapper.map("Tenders[@WinnerNumber]").to("WinnerNumber")
-        mapper.map("Contracts[@SignedNumber]").to("SignedNumber")
-        mapper.map("Contracts[@Sum]").to("Sum")
-        report.StateContracts.FederalLaw223.Year = Object.assign(report.StateContracts.FederalLaw223.Year,mapper.execute(report.StateContracts.FederalLaw223.Year))
       }
-    }
       if(report.StateContracts.FederalLaw94){
         if (Array.isArray(report.StateContracts.FederalLaw94.Year)){
           report.StateContracts.FederalLaw94.Year.forEach((year)=>{
@@ -349,6 +348,23 @@ const submitResponse = (source,id,response,callback) =>{
         report.StateContracts.FederalLaw94.Year = Object.assign(report.StateContracts.FederalLaw94.Year,mapper.execute(report.StateContracts.FederalLaw94.Year))
       }
     }
+    if(report.ExecutiveBody){
+      if (Array.isArray(report.ExecutiveBody.Member)){
+        report.ExecutiveBody.Member.forEach((member)=>{
+          mapper.map("Position[@Code]").to("PositionCode")
+          mapper.map("Position[@Name]").to("PostionName")
+         
+          member = Object.assign(member,mapper.execute(member))
+    })}
+    else{
+      mapper.map("Tenders[@AdmittedNumber]").to("AdmittedNumber")
+      mapper.map("Tenders[@NotAdmittedNumber]").to("NotAdmittedNumber")
+      mapper.map("Tenders[@WinnerNumber]").to("WinnerNumber")
+      mapper.map("Contracts[@SignedNumber]").to("SignedNumber")
+      mapper.map("Contracts[@Sum]").to("Sum")
+      report.StateContracts.FederalLaw94.Year = Object.assign(report.StateContracts.FederalLaw94.Year,mapper.execute(report.StateContracts.FederalLaw94.Year))
+    }
+  }
     }
       report.PersonsWithoutWarrant.Person = injectToArray(report.PersonsWithoutWarrant.Person,"ActualDate",report.PersonsWithoutWarrant['@ActualDate'])
       mapper.map("Status[@Type]").to("Status")
@@ -361,7 +377,7 @@ const submitResponse = (source,id,response,callback) =>{
       mapper.map("PaymentIndex[@PaymentIndexValue]").to("PaymentIndexValue")
       mapper.map("PaymentIndex[@PaymentIndexDesc]").to("PaymentIndexDesc")
       mapper.map("CompanySize[@Revenue]").to("CompanySizeRevenue")
-      mapper.map("CompanySize[@Description]"),to("CompanySizeDescription")
+      mapper.map("CompanySize[@Description]").to("CompanySizeDescription")
       mapper.map("CompanyWithSameInfo.AddressCount").to("SameAddress")
       mapper.map("CompanyWithSameInfo.ManagerCountInCountry").to("SameManagerCountry")
       mapper.map("CompanyWithSameInfo.ManagerCountInCountry").to("SameManagerCountry")
@@ -372,76 +388,112 @@ const submitResponse = (source,id,response,callback) =>{
       mapper.map("OKATO[@RegionName]").to("OKATORegionName")
       mapper.map("OKATO[@RegionCode]").to("OKATORegionCode")
       mapper.map("OKATO[@Code]").to("OKATO")
-      mapper.map("OKOGU[@Name]").to("OKOGUCode")
+      mapper.map("OKOGU[@Code]").to("OKOGUCode")
       mapper.map("OKOGU[@Name]").to("OKOGUName")
       mapper.map("OKFS[@Code]").to("OKFSCode")
       mapper.map("OKFS[@Name]").to("OKFSName")
       mapper.map("Status[@Date]").to("StatusDate")
       mapper.map("OKOPF[@Name]").to("OKOPFName")
-      report = Object.assign(report.mapper.execute(report))
-      
-      // console.log (report)
+      report = Object.assign(report,mapper.execute(report))
+      // console.log("Report:")
+      //  report.Finance.FinPeriod.forEach((period)=>{
+      //    console.log(period.StringList.String)
+      //  })
       log.timestamp("Creating queries for "+source+"-"+id)
       dataStructure.forEach((entity)=>{
         rows = jp.query(report,entity.path)
-        console.log("Rows "+entity.name+": ")
-        console.log(rows)
+        rows = rows[0]
+        // console.log("Rows "+entity.name+": ")
+        // console.log(rows)
         
         if (rows){
           if (Array.isArray(rows)){
             for (row=0;row<rows.length;row++){
-              res = "INSERT INTO "+ entity.name+" ("
+              res = "INSERT INTO "+ entity.name+" (source,id,"
               entity.structure.forEach((attr)=>{
-                if (attr.name!=entity.structure[entity.structure.length-1]){
+             
                 res+=attr.name+","
-                } else(res+=attr.name)
+             
               })
-              res+=") values("
+              res+=") values('"+source+"','"+id+"',"
               entity.structure.forEach((attr)=>{
-                if (attr.name!=entity.structure[entity.structure.length-1]){
-                res+=jp.query(report,entity.path+"["+row+']["'+attr.path+'"]'+"[0]")+","
-                } else{
-                  res+=jp.query(report,entity.path[attr.path]+"[0]")
+                let value = jp.query(rows[row] || {},"$['"+attr.path+"']")
+                value = value[0]
+                // console.log("attr.name:\t"+attr.name+"\tattr.path\t"+attr.path+"\tvalue:\t"+value)
+                if (attr.type=="date"){
+                  if (!value) {
+                    value = "null"
+                    res+=value+","
+                  }
+                  else{
+                    res+="'"+value+"',"
+                  }
+                }
+                if (attr.type =="double precision" ){
+                  if (!value) value = "null"
+                  res+=value+","
+                }
+                if (attr.type!="date" && attr.type!="double precision"){
+                  value = value ||""
+                  value = value.toString().replace(/[\'\"\t]/g," ")
+                  res+="'"+value+"',"
                 }
               })
               res+=")"
-              console.log("Res:")
-              console.log(res)
+              res = res.replace(/\,\)/g,")")
+              // console.log("Res:")
+              // console.log(res)
               resparray.push(res)
             }
           } else{
-            res = "INSERT INTO "+ entity.name+" ("
+            res = "INSERT INTO "+ entity.name+" (source,id,"
               entity.structure.forEach((attr)=>{
-                if (attr.name!=entity.structure[entity.structure.length-1]){
+               
                 res+=attr.name+","
-                } else(res+=attr.name)
+               
               })
-              res+=") values("
+              res+=") values('"+source+"','"+id+"',"
               entity.structure.forEach((attr)=>{
-                if (attr.name!=entity.structure[entity.structure.length-1]){
-                res+=jp.query(report,entity.path+'[0]["'+attr.path+'"]'+"[0]")+","
-                } else{
-                  res+=jp.query(report,entity.path[attr.path]+"[0]")
+                let value = jp.query(rows || {},"$['"+attr.path+"']")
+                value = value[0]
+                // console.log("attr.name:\t"+attr.name+"\tattr.path\t"+attr.path+"\tvalue:\t"+value)
+                if (attr.type=="date"){
+                  if (!value) {
+                    value = "null"
+                    res+=value+","
+                  }
+                  else{
+                    res+="'"+value+"',"
+                  }
+                }
+                if (attr.type =="double precision" ){
+                  if (!value) value = "null"
+                  res+=value+","
+                }
+                if (attr.type!="date" && attr.type!="double precision"){
+                  value = value ||""
+                  value = value.toString().replace(/[\'\"\t]/g," ")
+                  res+="'"+value+"',"
                 }
               })
               res+=")"
-              console.log("Res:")
-              console.log(res)
+              res = res.replace(/\,\)/g,")")
+              // console.log("Res:")
+              // console.log(res)
               resparray.push(res)
+              
           }
-      
-        }
-        else{
-
-        }
+          result = "Found"
+        } 
+        
       })
 
-     } else {
-    
-    result = "not found";
-  }}
-  console.log("RespArray")
-  console.log(resparray)
+     }else{
+       result = "Not Found"
+      }
+    }
+  // console.log("RespArray: " +source+"-"+id)
+  // console.log(resparray)
   multiquery(resparray,()=>{
     log.timestamp("Response: " + chalk.greenBright(source+"-"+id))
     logResponse(source,id,result);
