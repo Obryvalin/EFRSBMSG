@@ -70,6 +70,10 @@ const requestSPEXT = (reqdata, callback) => {
       }
     }
     )
+    .catch((error)=>{
+      console.log("err\n"+error)
+          callback(error,undefined)
+    })
     
   }
 

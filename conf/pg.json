@@ -21,7 +21,7 @@
     "DROP TABLE leaderlist",
     "DROP TABLE legaladdresses",
     "DROP TABLE log",
-    "DROP TABLE logerr",
+    "DROP TABLE errorlog",
     "DROP TABLE okvedlist",
     "DROP TABLE personswithoutwarrant",
     "DROP TABLE phonelist",
@@ -36,37 +36,37 @@
   ],
   "createQueries": [
     "CREATE TABLE public.workers (workerName character varying, updated timestamp with time zone)",
-    "CREATE TABLE accessiblefindata( source character varying(10),id character varying(36),sparkid double precision,idperiod double precision,name character varying(20),enddate date)",
-    "CREATE TABLE adjustaddresses( source character varying(10),id character varying(36),sparkid double precision,postcode character varying(6),address character varying(500),region character varying(50),area character varying(50),city character varying(50),street character varying(50),house character varying(50),fiascode character varying(140),fiasregion character varying(140),fiasarea character varying(140),fiascity character varying(140),fiasplace character varying(140),fiasstreet character varying(140),actualdate date)",
-    "CREATE TABLE arbitrationcases( source character varying(10),id character varying(36),sparkid double precision,year character varying(4),numberplaintiff double precision,sumplaintiff character varying(20),numberdefendant double precision,sumdefendant character varying(20),numberthird double precision)",
-    "CREATE TABLE attr( source character varying(10),id character varying(36),sparkid double precision,resulttype character varying(15),executiontime double precision)",
-    "CREATE TABLE bankruptcymessage( source character varying(10),id character varying(36),sparkid double precision,date date,type character varying(500),casenumber character varying(32),idtype character varying(20))",
-    "CREATE TABLE boardofdirectors( source character varying(10),id character varying(36),sparkid double precision,actualdate date,name character varying(255),birthdayyear character varying(10),code character varying(50),pos character varying(50),sharepart character varying(12),inn character varying(15))",
-    "CREATE TABLE eventslist( source character varying(10),id character varying(36),sparkid double precision,eventtypeid character varying(255),type character varying(500),date date)",
-    "CREATE TABLE executivebody( source character varying(10),id character varying(36),sparkid double precision,actualdate date,name character varying(255),birthdayyear character varying(4),code character varying(50),pos character varying(50),sharepart character varying(5),inn character varying(15))",
-    "CREATE TABLE faxlist( source character varying(10),id character varying(36),sparkid double precision,code character varying(5),number character varying(10),status character varying(50))",
-    "CREATE TABLE federaltaxregistration( source character varying(10),id character varying(36),sparkid double precision,regdate date,regauthority character varying(255),regauthorityaddress character varying(255))",
-    "CREATE TABLE finance( source character varying(10),id character varying(36),sparkid double precision,balancetype double precision,periodname character varying(50),datebegin date,dateend date,form character varying(50),section character varying(255),name character varying(255),code double precision,value character varying(50),idfinpok double precision)",
-    "CREATE TABLE includeinlist( source character varying(10),id character varying(36),sparkid double precision,listname character varying(200))",
-    "CREATE TABLE leaderlist( source character varying(10),id character varying(36),sparkid double precision,fio character varying(255),position character varying(50),actualdate date,inn character varying(255))",
-    "CREATE TABLE legaladdresses( source character varying(10),id character varying(36),sparkid double precision,postcode character varying(6),address character varying(500),region character varying(50),area character varying(50),city character varying(50),street character varying(50),house character varying(50),fiascode character varying(140),fiasregion character varying(140),fiasarea character varying(140),fiascity character varying(140),fiasplace character varying(140),fiasstreet character varying(140),actualdate date)",
+    "CREATE TABLE accessiblefindata( source character varying(10),id character varying(36),idperiod double precision,name character varying(20),enddate date)",
+    "CREATE TABLE adjustaddresses( source character varying(10),id character varying(36),postcode character varying(6),address character varying(500),region character varying(50),area character varying(50),city character varying(50),street character varying(50),house character varying(50),fiascode character varying(140),fiasregion character varying(140),fiasarea character varying(140),fiascity character varying(140),fiasplace character varying(140),fiasstreet character varying(140),actualdate date)",
+    "CREATE TABLE arbitrationcases( source character varying(10),id character varying(36),year character varying(4),numberplaintiff double precision,sumplaintiff character varying(20),numberdefendant double precision,sumdefendant character varying(20),numberthird double precision)",
+    "CREATE TABLE attr( source character varying(10),id character varying(36),resulttype character varying(15),executiontime double precision)",
+    "CREATE TABLE bankruptcymessage( source character varying(10),id character varying(36),date date,type character varying(500),casenumber character varying(50),idtype character varying(20))",
+    "CREATE TABLE boardofdirectors( source character varying(10),id character varying(36),actualdate date,name character varying(255),birthdayyear character varying(10),code character varying(50),pos character varying(50),sharepart character varying(12),inn character varying(15))",
+    "CREATE TABLE eventslist( source character varying(10),id character varying(36),eventtypeid character varying(255),type character varying(500),date date)",
+    "CREATE TABLE executivebody( source character varying(10),id character varying(36),actualdate date,name character varying(255),birthdayyear character varying(4),code character varying(50),pos character varying(50),sharepart character varying(20),inn character varying(15))",
+    "CREATE TABLE faxlist( source character varying(10),id character varying(36),code character varying(5),number character varying(10),status character varying(50))",
+    "CREATE TABLE federaltaxregistration( source character varying(10),id character varying(36),regdate date,regauthority character varying(255),regauthorityaddress character varying(255))",
+    "CREATE TABLE finance( source character varying(10),id character varying(36),balancetype double precision,periodname character varying(50),datebegin date,dateend date,form character varying(50),section character varying(255),name character varying(255),code double precision,value character varying(50),idfinpok double precision)",
+    "CREATE TABLE includeinlist( source character varying(10),id character varying(36),listname character varying(200))",
+    "CREATE TABLE leaderlist( source character varying(10),id character varying(36),fio character varying(255),position character varying,actualdate date,inn character varying(255))",
+    "CREATE TABLE legaladdresses( source character varying(10),id character varying(36),postcode character varying(6),address character varying(500),region character varying(50),area character varying(50),city character varying(50),street character varying(50),house character varying(50),fiascode character varying(140),fiasregion character varying(140),fiasarea character varying(140),fiascity character varying(140),fiasplace character varying(140),fiasstreet character varying(140),actualdate date)",
     "CREATE TABLE log( source character varying(10),id character varying(36),worker character varying(10),snd timestamp with time zone,rep timestamp with time zone,result character varying(5))",
-    "CREATE TABLE logerr( datetime character varying(10),syscc double precision,errmsg character varying(100))",
-    "CREATE TABLE okvedlist( source character varying(10),id character varying(36),sparkid double precision,code character varying(32),name character varying(500),ismain character varying(5))",
-    "CREATE TABLE personswithoutwarrant( source character varying(10),id character varying(36),sparkid double precision,actualdate date,name character varying(255),pos character varying(50),inn character varying(255))",
-    "CREATE TABLE phonelist( source character varying(10),id character varying(36),sparkid double precision,code character varying(5),number character varying(10),status character varying(50))",
-    "CREATE TABLE previousaddresses( source character varying(10),id character varying(36),sparkid double precision,postcode character varying(6),address character varying(500),region character varying(50),area character varying(50),city character varying(50),street character varying(50),house character varying(50),fiascode character varying(140),fiasregion character varying(140),fiasarea character varying(140),fiascity character varying(140),fiasplace character varying(140),fiasstreet character varying(140),actualdate date)",
-    "CREATE TABLE report( source character varying(10),id character varying(36),sparkid character varying(100),status character varying(200),egrpoincluded character varying(5),egrullikvidation character varying(5),isacting character varying(5),datefirstreg date,shortnamerus character varying(255),shortnameen character varying(255),fullnamerus character varying(500),normname character varying(500),inn character varying(12),kpp character varying(12),ogrn character varying(15),okpo character varying(15),fcsmcode character varying(15),rts character varying(15),okato character varying(11),okogu character varying(7),okfs character varying(5),okopf character varying(2),okopf_new character varying(10),chartercapital double precision,email character varying(255),www character varying(255),workersrange character varying(50),address character varying(500),creditriskvalue double precision,creditriskdesc character varying(50),failurescorevalue character varying(10),failurescoredesc character varying(100),paymentindexvalue double precision,paymentindexdesc character varying(50),companysize_revenue character varying(10),companysize character varying(512),sametelephonecount double precision,sameaddresscount double precision,samemanagercountincountry double precision,samemanagercountinregion double precision,indexofduediligence double precision,okato_regionname character varying(50),okato_regioncode character varying(2),okoguname character varying(200),okfsname character varying(100),statusdate date,indexofduediligencedesc character varying(50),okopf_name character varying(50))",
+    "CREATE TABLE errorlog (error character varying, datetime timestamp without time zone)",
+    "CREATE TABLE okvedlist( source character varying(10),id character varying(36),code character varying(50),name character varying(500),ismain character varying(5))",
+    "CREATE TABLE personswithoutwarrant( source character varying(10),id character varying(36),actualdate date,name character varying(255),pos character varying,inn character varying(255))",
+    "CREATE TABLE phonelist( source character varying(10),id character varying(36),code character varying(5),number character varying(10),status character varying(50))",
+    "CREATE TABLE previousaddresses( source character varying(10),id character varying(36),postcode character varying(6),address character varying(500),region character varying(50),area character varying(50),city character varying(50),street character varying(50),house character varying(50),fiascode character varying(140),fiasregion character varying(140),fiasarea character varying(140),fiascity character varying(140),fiasplace character varying(140),fiasstreet character varying(140),actualdate date)",
+    "CREATE TABLE report( source character varying(10),id character varying(36),sparkid character varying(100),status character varying(200),egrpoincluded character varying(5),egrullikvidation character varying(200),isacting character varying(5),datefirstreg date,shortnamerus character varying(255),shortnameen character varying(255),fullnamerus character varying(500),normname character varying(500),inn character varying(12),kpp character varying(12),ogrn character varying(15),okpo character varying(15),fcsmcode character varying(15),rts character varying(15),okato character varying(20),okogu character varying(20),okfs character varying(5),okopf character varying(2),okopf_new character varying(10),chartercapital double precision,email character varying(255),www character varying(255),workersrange character varying(50),address character varying(500),creditriskvalue double precision,creditriskdesc character varying(50),failurescorevalue character varying(10),failurescoredesc character varying(100),paymentindexvalue double precision,paymentindexdesc character varying(50),companysize_revenue character varying(10),companysize character varying(512),sametelephonecount double precision,sameaddresscount double precision,samemanagercountincountry double precision,samemanagercountinregion double precision,indexofduediligence double precision,okato_regionname character varying(50),okato_regioncode character varying(2),okoguname character varying(200),okfsname character varying(100),statusdate date,indexofduediligencedesc character varying(50),okopf_name character varying(50))",
     "CREATE TABLE reqdata( source character varying(10),id character varying(36),inn character varying(12))",
-    "CREATE TABLE statecontracts_fl223( source character varying(10),id character varying(36),sparkid double precision,year character varying(4),admittednumber double precision,notadmittednumber double precision,winnernumber double precision,signednumber double precision,sum character varying(20))",
-    "CREATE TABLE statecontracts_fl94( source character varying(10),id character varying(36),sparkid double precision,year character varying(4),admittednumber double precision,notadmittednumber double precision,winnernumber double precision,signednumber double precision,sum character varying(20))",
-    "CREATE TABLE structureinfo( source character varying(10),id character varying(36),sparkid double precision,countcoownerfcsm double precision,countcoownerrosstat double precision,countcoowneregrul double precision,countbranch double precision,countbranchrosstat double precision,countaffiliatedcompanyfcsm double precision,countaffiliatedcompanyrosstat double precision,countaffiliatedcompanyegrul double precision,nonprofitorganizationrosstat double precision)",
-    "CREATE TABLE vestnikmessage( source character varying(10),id character varying(36),sparkid double precision,date date,type character varying(500),casenumber character varying(32),idtype character varying(20),text character varying(1024))"
+    "CREATE TABLE statecontracts_fl223( source character varying(10),id character varying(36),year character varying(4),admittednumber double precision,notadmittednumber double precision,winnernumber double precision,signednumber double precision,sum character varying(20))",
+    "CREATE TABLE statecontracts_fl94( source character varying(10),id character varying(36),year character varying(4),admittednumber double precision,notadmittednumber double precision,winnernumber double precision,signednumber double precision,sum character varying(20))",
+    "CREATE TABLE structureinfo( source character varying(10),id character varying(36),countcoownerfcsm double precision,countcoownerrosstat double precision,countcoowneregrul double precision,countbranch double precision,countbranchrosstat double precision,countaffiliatedcompanyfcsm double precision,countaffiliatedcompanyrosstat double precision,countaffiliatedcompanyegrul double precision,nonprofitorganizationrosstat double precision)",
+    "CREATE TABLE vestnikmessage( source character varying(10),id character varying(36),date date,type character varying(500),casenumber character varying(50),idtype character varying(20),text character varying(1024))"
   ],
   "dataStructure": [
     {
       "name": "accessiblefindata",
-      "path": "$.Response.Data.Report.AccessibleFinData.Period",
+      "path": "$.AccessibleFinData.Period",
       "structure": [
         {
           "name": "idperiod",
@@ -87,7 +87,7 @@
     },
     {
       "name": "adjustaddresses",
-      "path": "$.Response.Data.Report.AdjustAddresses.Address",
+      "path": "$.AdjustAddresses.Address",
       "structure": [
         {
           "name": "postcode",
@@ -163,7 +163,7 @@
     },
     {
       "name": "arbitrationcases",
-      "path": "$.Response.Data.Report.ArbitrationCases.Year",
+      "path": "$.ArbitrationCases.Year",
       "structure": [
         {
           "name": "year",
@@ -215,7 +215,7 @@
     },
     {
       "name": "bankruptcymessage",
-      "path": "$.Response.Data.Report.BankruptcyMessage.Message",
+      "path": "$.BankruptcyMessage.Message",
       "structure": [
         {
           "name": "date",
@@ -229,7 +229,7 @@
         },
         {
           "name": "casenumber",
-          "type": "character varying(32)",
+          "type": "character varying(50)",
           "path": "@CaseNumber"
         },
         {
@@ -241,7 +241,7 @@
     },
     {
       "name": "boardofdirectors",
-      "path": "$.Response.Data.Report.BoardOfDirectors.Member",
+      "path": "$.BoardOfDirectors.Member",
       "structure": [
         {
           "name": "actualdate",
@@ -282,7 +282,7 @@
     },
     {
       "name": "eventslist",
-      "path": "$.Response.Data.Report.EventsList.Event",
+      "path": "$.EventsList.Event",
       "structure": [
         {
           "name": "eventtypeid",
@@ -303,12 +303,12 @@
     },
     {
       "name": "executivebody",
-      "path": "$.Response.Data.Report.ExecutiveBody.Member",
+      "path": "$.ExecutiveBody.Member",
       "structure": [
         {
           "name": "actualdate",
           "type": "date",
-          "path": "$.Response.Data.Report.ExecutiveBody['@ActualDate']"
+          "path": "@ActualDate"
         },
         {
           "name": "name",
@@ -323,16 +323,16 @@
         {
           "name": "code",
           "type": "character varying(50)",
-          "path": "Position['@Code']"
+          "path": "PositionCode"
         },
         {
           "name": "pos",
           "type": "character varying(50)",
-          "path": "Position['@Name']"
+          "path": "PositionName"
         },
         {
           "name": "sharepart",
-          "type": "character varying(5)",
+          "type": "character varying(20)",
           "path": "SharePart"
         },
         {
@@ -344,7 +344,7 @@
     },
     {
       "name": "faxlist",
-      "path": "$.Response.Data.Report.FaxList.Phone",
+      "path": "$.FaxList.Phone",
       "structure": [
         {
           "name": "code",
@@ -365,7 +365,7 @@
     },
     {
       "name": "federaltaxregistration",
-      "path": "$.Response.Data.Report.FederalTaxRegistration",
+      "path": "$.FederalTaxRegistration",
       "structure": [
         {
           "name": "regdate",
@@ -386,7 +386,7 @@
     },
     {
       "name": "finance",
-      "path": "$.Response.Data.Report.Finance.FinPeriod.StringList.String",
+      "path": "$.Finance.FinPeriod.StringList.String",
       "structure": [
         {
           "name": "balancetype",
@@ -442,18 +442,18 @@
     },
     {
       "name": "includeinlist",
-      "path": "$.Response.Data.Report.IncludeInList",
+      "path": "$.IncludeInList.ListName",
       "structure": [
         {
           "name": "listname",
           "type": "character varying(200)",
-          "path": "ListName"
+          "path": "value"
         }
       ]
     },
     {
       "name": "leaderlist",
-      "path": "$.Response.Data.Report.LeaderList.Leader",
+      "path": "$.LeaderList.Leader",
       "structure": [
         {
           "name": "fio",
@@ -462,7 +462,7 @@
         },
         {
           "name": "position",
-          "type": "character varying(50)",
+          "type": "character varying",
           "path": "@Position"
         },
         {
@@ -479,7 +479,7 @@
     },
     {
       "name": "legaladdresses",
-      "path": "$.Response.Data.Report.LegalAddresses.Address",
+      "path": "$.LegalAddresses.Address",
       "structure": [
         {
           "name": "postcode",
@@ -555,11 +555,11 @@
     },
     {
       "name": "okvedlist",
-      "path": "$.Response.Data.Report.OKVED2List.OKVED",
+      "path": "$.OKVED2List.OKVED",
       "structure": [
         {
           "name": "code",
-          "type": "character varying(32)",
+          "type": "character varying(50)",
           "path": "@Code"
         },
         {
@@ -576,7 +576,7 @@
     },
     {
       "name": "personswithoutwarrant",
-      "path": "$.Response.Data.Report.PersonsWithoutWarrant.Person",
+      "path": "$.PersonsWithoutWarrant.Person",
       "structure": [
         {
           "name": "actualdate",
@@ -590,7 +590,7 @@
         },
         {
           "name": "pos",
-          "type": "character varying(50)",
+          "type": "character varying",
           "path": "@Position"
         },
         {
@@ -602,7 +602,7 @@
     },
     {
       "name": "phonelist",
-      "path": "$.Response.Data.Report.PhoneList.Phone",
+      "path": "$.PhoneList.Phone",
       "structure": [
         {
           "name": "code",
@@ -623,7 +623,7 @@
     },
     {
       "name": "previousaddresses",
-      "path": "$.Response.Data.Report.PreviousAddresses.Address",
+      "path": "$.PreviousAddresses.Address",
       "structure": [
         {
           "name": "postcode",
@@ -699,7 +699,7 @@
     },
     {
       "name": "report",
-      "path": "$.Response.Data.Report",
+      "path": "$",
       "structure": [
         {
           "name": "status",
@@ -713,7 +713,7 @@
         },
         {
           "name": "egrullikvidation",
-          "type": "character varying(5)",
+          "type": "character varying(200)",
           "path": "EGRULLikvidation"
         },
         {
@@ -778,17 +778,17 @@
         },
         {
           "name": "okato",
-          "type": "character varying(11)",
+          "type": "character varying(20)",
           "path": "OKATO"
         },
         {
           "name": "okogu",
-          "type": "character varying(7)",
+          "type": "character varying(20)",
           "path": "OKOGUCode"
         },
         {
           "name": "okfs",
-          "type": "character varying(5)",
+          "type": "character varying(10)",
           "path": "OKFSCode"
         },
         {
@@ -930,7 +930,7 @@
     },
     {
       "name": "statecontracts_fl223",
-      "path": "$.Response.Data.Report.StateContracts.FederalLaw223.Year",
+      "path": "$.StateContracts.FederalLaw223.Year",
       "structure": [
         {
           "name": "year",
@@ -966,7 +966,7 @@
     },
     {
       "name": "statecontracts_fl94",
-      "path": "$.Response.Data.Report.StateContracts.FederalLaw94.Year",
+      "path": "$.StateContracts.FederalLaw94.Year",
       "structure": [
         {
           "name": "year",
@@ -1002,7 +1002,7 @@
     },
     {
       "name": "structureinfo",
-      "path": "$.Response.Data.Report.StructureInfo",
+      "path": "$.StructureInfo",
       "structure": [
         {
           "name": "countcoownerfcsm",
@@ -1053,7 +1053,7 @@
     },
     {
       "name": "vestnikmessage",
-      "path": "$.Response.Data.Report.VestnikMessage.Message",
+      "path": "$.VestnikMessage.Message",
       "structure": [
         {
           "name": "date",
@@ -1067,7 +1067,7 @@
         },
         {
           "name": "casenumber",
-          "type": "character varying(32)",
+          "type": "character varying(50)",
           "path": "@CaseNumber"
         },
         {

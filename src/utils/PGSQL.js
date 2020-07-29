@@ -153,7 +153,7 @@ const getUnfinishedRequests = (workerName,cooldown,callback)=>{
     if (!err) {
      
       requestsToSend.rows.forEach((row)=>{
-        log.timestamp("Request :" + chalk.yellowBright(row.source+"-"+row.id))
+        log.timestamp("Request\t" + chalk.yellowBright(row.source+"-"+row.id))
         logSend(row.source,row.id)
       })
     
@@ -174,12 +174,13 @@ const logSend = (source,id,callback) =>{
 const logResponse = (source,id,result,callback) =>{
   
   sql = "Update log set rep = current_timestamp, result='"+result+"' where source = '"+source+"' and id = '"+id+"'";
-  console.log("logResponse  "+sql)
+  // console.log("logResponse  "+sql)
   query(sql,()=>{
     if(callback){callback();}
   });
 }
 const logError = (error) =>{
+  log.timestamp("Logging Error: "+error)
   if(error) query("INSERT into errorlog(error,datetime) values('"+error+"',CURRENT_TIMESTAMP)");
 }
 
@@ -271,41 +272,71 @@ const submitResponse = (source,id,response,callback) =>{
       const mapper=mapFactory()
       // console.log("Report transform")
       if (report.ArbitrationCases){
-        report.ArbitrationCases.Year.forEach((year)=>{
+        if (Array.isArray(report.ArbitrationCases.Year)){
+          report.ArbitrationCases.Year.forEach((year)=>{
+            mapper.map("Plaintiff[@CasesNumber]").to("Plaintiff_CaseNumber")
+            mapper.map("Plaintiff[@Sum]").to("Plaintiff_Sum")
+            mapper.map("Defendant[@CasesNumber]").to("Defendant_CasesNumber")
+            mapper.map("Defendant[@Sum]").to("Defendant_Sum")
+            mapper.map("ThirdOrOtherPerson[@CasesNumber]").to("ThirdOrOtherPerson_CasesNumber")
+            year = Object.assign(year,mapper.execute(year))
+          })
+        } else{
           mapper.map("Plaintiff[@CasesNumber]").to("Plaintiff_CaseNumber")
           mapper.map("Plaintiff[@Sum]").to("Plaintiff_Sum")
           mapper.map("Defendant[@CasesNumber]").to("Defendant_CasesNumber")
           mapper.map("Defendant[@Sum]").to("Defendant_Sum")
           mapper.map("ThirdOrOtherPerson[@CasesNumber]").to("ThirdOrOtherPerson_CasesNumber")
-          year = Object.assign(year,mapper.execute(year))
+          report.ArbitrationCases.Year = Object.assign(report.ArbitrationCases.Year,mapper.execute(report.ArbitrationCases.Year))
         }
-      )}
+      }
       if (report.BoardOfDirectors){
         report.BoardOfDirectors.Member = injectToArray(report.BoardOfDirectors.Member,"ActualDate",report.BoardOfDirectors['@ActualDate'])
-        report.BoardOfDirectors.Member.forEach((member)=>{
+        if(Array.isArray(report.BoardOfDirectors.Member)){
+          report.BoardOfDirectors.Member.forEach((member)=>{
 
           mapper.map("Position[@Name]").to("PositionName")
           mapper.map("Position[@Code]").to("PositionCode")
           member = Object.assign(member,mapper.execute(member))
         }
-      )}
+      )}else{
+        mapper.map("Position[@Name]").to("PositionName")
+        mapper.map("Position[@Code]").to("PositionCode")
+        report.BoardOfDirectors.Member = Object.assign( report.BoardOfDirectors.Member,mapper.execute( report.BoardOfDirectors.Member))
+      }}
       if (report.ExecutiveBody){
         report.ExecutiveBody.Member = injectToArray(report.ExecutiveBody.Member,"ActualDate",report.ExecutiveBody['@ActualDate'])
-        report.ExecutiveBody.Member.forEach((member)=>{
+        if(Array.isArray(report.ExecutiveBody.Member)){
+          report.ExecutiveBody.Member.forEach((member)=>{
+            mapper.map("Position[@Name]").to("PositionName")
+            mapper.map("Position[@Code]").to("PositionCode")
+            member = Object.assign(member,mapper.execute(member))
+          })
+        }
+        else{
           mapper.map("Position[@Name]").to("PositionName")
           mapper.map("Position[@Code]").to("PositionCode")
-          member = Object.assign(member,mapper.execute(member))
-      })
-      }
-      report.Finance.FinPeriod.forEach((period)=>{
-        if (period.StringList){
-          period.StringList.String = injectToArray(period.StringList.String,"BalanceType",report.Finance['@BalanceType'])
-          period.StringList.String = injectToArray(period.StringList.String,"PeriodName",period['@PeriodName'])
-          period.StringList.String = injectToArray(period.StringList.String,"DateBegin",period['@DateBegin'])
-          period.StringList.String = injectToArray(period.StringList.String,"DateEnd",period['@DateEnd'])
+          report.ExecutiveBody.Member = Object.assign(report.ExecutiveBody.Member,mapper.execute(report.ExecutiveBody.Member))
         }
-      })
-      
+      }
+      if(report.Finance)
+      { if (Array.isArray(report.Finance.FinPeriod)){
+        report.Finance.FinPeriod.forEach((period)=>{
+          if (period.StringList){
+            period.StringList.String = injectToArray(period.StringList.String,"BalanceType",report.Finance['@BalanceType'])
+            period.StringList.String = injectToArray(period.StringList.String,"PeriodName",period['@PeriodName'])
+            period.StringList.String = injectToArray(period.StringList.String,"DateBegin",period['@DateBegin'])
+            period.StringList.String = injectToArray(period.StringList.String,"DateEnd",period['@DateEnd'])
+          }
+      })}
+      else{
+        report.Finance.FinPeriod.StringList.String = injectToArray(report.Finance.FinPeriod.StringList.String,"BalanceType",report.Finance['@BalanceType'])
+        report.Finance.FinPeriod.StringList.String = injectToArray(report.Finance.FinPeriod.StringList.String,"PeriodName",report.Finance.FinPeriod['@PeriodName'])
+        report.Finance.FinPeriod.StringList.String = injectToArray(report.Finance.FinPeriod.StringList.String,"DateBegin",report.Finance.FinPeriod['@DateBegin'])
+        report.Finance.FinPeriod.StringList.String = injectToArray(report.Finance.FinPeriod.StringList.String,"DateEnd",report.Finance.FinPeriod['@DateEnd'])
+      }
+    }
+        
       if (report.StateContracts){
         if(report.StateContracts.FederalLaw223){
           if (Array.isArray(report.StateContracts.FederalLaw223.Year)){
@@ -348,25 +379,25 @@ const submitResponse = (source,id,response,callback) =>{
         report.StateContracts.FederalLaw94.Year = Object.assign(report.StateContracts.FederalLaw94.Year,mapper.execute(report.StateContracts.FederalLaw94.Year))
       }
     }
-    if(report.ExecutiveBody){
-      if (Array.isArray(report.ExecutiveBody.Member)){
-        report.ExecutiveBody.Member.forEach((member)=>{
-          mapper.map("Position[@Code]").to("PositionCode")
-          mapper.map("Position[@Name]").to("PostionName")
-         
-          member = Object.assign(member,mapper.execute(member))
-    })}
-    else{
-      mapper.map("Tenders[@AdmittedNumber]").to("AdmittedNumber")
-      mapper.map("Tenders[@NotAdmittedNumber]").to("NotAdmittedNumber")
-      mapper.map("Tenders[@WinnerNumber]").to("WinnerNumber")
-      mapper.map("Contracts[@SignedNumber]").to("SignedNumber")
-      mapper.map("Contracts[@Sum]").to("Sum")
-      report.StateContracts.FederalLaw94.Year = Object.assign(report.StateContracts.FederalLaw94.Year,mapper.execute(report.StateContracts.FederalLaw94.Year))
+    if (report.ExecutiveBody) {
+      if (Array.isArray(report.ExecutiveBody.Member)) {
+        report.ExecutiveBody.Member.forEach(member => {
+          mapper.map("Position[@Code]").to("PositionCode");
+          mapper.map("Position[@Name]").to("PostionName");
+
+          member = Object.assign(member, mapper.execute(member));
+        });
+      } else {
+        mapper.map("Position[@Code]").to("PositionCode");
+        mapper.map("Position[@Name]").to("PostionName");
+
+        report.ExecutiveBody.Member = Object.assign( report.ExecutiveBody.Member, mapper.execute(report.ExecutiveBody.Member));
+      }
     }
-  }
     }
-      report.PersonsWithoutWarrant.Person = injectToArray(report.PersonsWithoutWarrant.Person,"ActualDate",report.PersonsWithoutWarrant['@ActualDate'])
+      if(report.PersonsWithoutWarrant){
+        report.PersonsWithoutWarrant.Person = injectToArray(report.PersonsWithoutWarrant.Person,"ActualDate",report.PersonsWithoutWarrant['@ActualDate'])
+      }
       mapper.map("Status[@Type]").to("Status")
       mapper.map("OKOPF[@CodeNew]").to("OKOPF_New")
       mapper.map("AdjustAddress[@Address]").to("AdjustAddress")
@@ -396,14 +427,13 @@ const submitResponse = (source,id,response,callback) =>{
       mapper.map("OKOPF[@Name]").to("OKOPFName")
       report = Object.assign(report,mapper.execute(report))
       // console.log("Report:")
-      //  report.Finance.FinPeriod.forEach((period)=>{
-      //    console.log(period.StringList.String)
-      //  })
-      log.timestamp("Creating queries for "+source+"-"+id)
+      // console.log(report)
+      // log.timestamp("Creating queries for "+source+"-"+id)
       dataStructure.forEach((entity)=>{
         rows = jp.query(report,entity.path)
         rows = rows[0]
-        // console.log("Rows "+entity.name+": ")
+        // console.log("Row Name "+entity.name)
+        // console.log("Row Path " +entity.path)
         // console.log(rows)
         
         if (rows){
@@ -483,11 +513,11 @@ const submitResponse = (source,id,response,callback) =>{
               resparray.push(res)
               
           }
-          result = "Found"
+          
         } 
         
       })
-
+      result = "Found"
      }else{
        result = "Not Found"
       }
@@ -495,7 +525,7 @@ const submitResponse = (source,id,response,callback) =>{
   // console.log("RespArray: " +source+"-"+id)
   // console.log(resparray)
   multiquery(resparray,()=>{
-    log.timestamp("Response: " + chalk.greenBright(source+"-"+id))
+    log.timestamp("Loaded\t" + chalk.greenBright(source+"-"+id))
     logResponse(source,id,result);
   })
   
@@ -503,23 +533,31 @@ const submitResponse = (source,id,response,callback) =>{
 
 const insertQueries = (source, inns, callback) => {
   var reqid = 0;
+  var cnt = 0;
   inns.forEach((inn) => {
     if (validate.INN(inn)) {
-      log.timestamp("inserting "+inn)
-      insertRequest(source, reqid, inn);
+      // log.timestamp("inserting "+inn)
+      insertRequest(source, reqid, inn,()=>{
+        // console.log("Inserted "+source+"-"+reqid)
+        cnt+=1;
+       
+      });
     } else {
       logError("Invalid INN [" + inn + "]");
+      cnt+=1;
     }
     reqid = reqid + 1;
   })
   ;
   const intid = setInterval(()=>{
-    if (reqid==inns.length){
+    console.log(cnt+"/"+inns.length)
+    if (cnt==inns.length){
+      
       pool.end();
       clearInterval(intid);
       log.timestamp("Inserted!")
     }
-  },500);
+  },5000);
  
 };
 
@@ -532,6 +570,7 @@ const insertRequest = (source, id, inn, callback) => {
   pool.query(sql, (err, res) => {
     if (err) {
       logError(err);
+      
     }
     if (!err) {
       

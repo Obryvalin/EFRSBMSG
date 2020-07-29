@@ -128,12 +128,19 @@ yargs.command({
       log.timestamp("Insert for CSV: " + chalk.green(yargs.argv.csv));
       
       var inns =[];
+      var innlist=[]
       fs.createReadStream(yargs.argv.csv).pipe(csv())
-        .on('data',(data)=>inns.push(data['0']))
+        .on('data',(data)=>inns.push(data))
         .on('end',()=>{
       
-      log.timestamp(inns);
-      pgsql.insertQueries("INSERT",inns);
+     
+          inns.forEach((innobj)=>{
+            innlist.push(innobj.INN)
+          })
+     
+      pgsql.insertQueries("INSERT",innlist);
+    
+
     });
     }
     if (!yargs.argv.csv && !yargs.argv.json){
@@ -224,10 +231,10 @@ const run = (workerName,callback) =>{
                 log.timestamp("ERROR:\t"+chalk.redBright(request.source+"-"+request.id))
                 fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
                 log.timestamp("Error for Source:"+request.source+",ID:"+request.id)
-                // pgsql.logError("Error for Source:"+request.source+",ID:"+request.id)
+                pgsql.logError("Error for Source:"+request.source+",ID:"+request.id)
               }
               if (result){
-                log.timestamp("Response:\t"+chalk.greenBright(request.source+"-"+request.id))
+                log.timestamp("Response\t\t"+chalk.greenBright(request.source+"-"+request.id))
                 fs.writeFile(resdir+"\\"+request.source+request.id+".json",JSON.stringify(result),()=>{})
                  pgsql.submitResponse(request.source,request.id,result.response.JSON,()=>{
                 })

@@ -1,10 +1,10 @@
 {
     "url":"",
-    "login":"admin",
-    "password":"flvbygc012",
+    "login":"",
+    "password":"",
     "cacheUse":-1,
-    "connectorCode":"",
-    "subRequestCode":"",
-    "timeout":10000
+    "connectorCode":"22",
+    "subRequestCode":"1",
+    "timeout":28000
 
 }
