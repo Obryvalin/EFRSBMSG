@@ -56,7 +56,7 @@
     "CREATE TABLE personswithoutwarrant( source character varying(10),id character varying(36),actualdate date,name character varying(255),pos character varying,inn character varying(255))",
     "CREATE TABLE phonelist( source character varying(10),id character varying(36),code character varying(5),number character varying(10),status character varying(50))",
     "CREATE TABLE previousaddresses( source character varying(10),id character varying(36),postcode character varying(6),address character varying(500),region character varying(50),area character varying(50),city character varying(50),street character varying(50),house character varying(50),fiascode character varying(140),fiasregion character varying(140),fiasarea character varying(140),fiascity character varying(140),fiasplace character varying(140),fiasstreet character varying(140),actualdate date)",
-    "CREATE TABLE report( source character varying(10),id character varying(36),sparkid character varying(100),status character varying(200),egrpoincluded character varying(5),egrullikvidation character varying(200),isacting character varying(5),datefirstreg date,shortnamerus character varying(255),shortnameen character varying(255),fullnamerus character varying(500),normname character varying(500),inn character varying(12),kpp character varying(12),ogrn character varying(15),okpo character varying(15),fcsmcode character varying(15),rts character varying(15),okato character varying(20),okogu character varying(20),okfs character varying(5),okopf character varying(2),okopf_new character varying(10),chartercapital double precision,email character varying(255),www character varying(255),workersrange character varying(50),address character varying(500),creditriskvalue double precision,creditriskdesc character varying(50),failurescorevalue character varying(10),failurescoredesc character varying(100),paymentindexvalue double precision,paymentindexdesc character varying(50),companysize_revenue character varying(10),companysize character varying(512),sametelephonecount double precision,sameaddresscount double precision,samemanagercountincountry double precision,samemanagercountinregion double precision,indexofduediligence double precision,okato_regionname character varying(50),okato_regioncode character varying(2),okoguname character varying(200),okfsname character varying(100),statusdate date,indexofduediligencedesc character varying(50),okopf_name character varying(50))",
+    "CREATE TABLE report( source character varying(10),id character varying(36),sparkid character varying(100),status character varying(200),egrpoincluded character varying(5),egrullikvidation character varying(200),isacting character varying(5),datefirstreg date,shortnamerus character varying(255),shortnameen character varying(255),fullnamerus character varying(500),normname character varying(500),inn character varying(12),kpp character varying(12),ogrn character varying(15),okpo character varying(15),fcsmcode character varying(15),rts character varying(15),okato character varying(20),okogu character varying(20),okfs character varying(5),okopf character varying(2),okopf_new character varying(10),chartercapital double precision,email character varying(255),www character varying(255),workersrange character varying(50),address character varying(500),creditriskvalue double precision,creditriskdesc character varying(50),failurescorevalue character varying(10),failurescoredesc character varying(100),paymentindexvalue double precision,paymentindexdesc character varying(50),companysize_revenue character varying(10),companysize character varying(512),sametelephonecount double precision,sameaddresscount double precision,samemanagercountincountry double precision,samemanagercountinregion double precision,indexofduediligence character varying(10),okato_regionname character varying(50),okato_regioncode character varying(2),okoguname character varying(200),okfsname character varying(100),statusdate date,indexofduediligencedesc character varying(50),okopf_name character varying(200))",
     "CREATE TABLE reqdata( source character varying(10),id character varying(36),inn character varying(12))",
     "CREATE TABLE statecontracts_fl223( source character varying(10),id character varying(36),year character varying(4),admittednumber double precision,notadmittednumber double precision,winnernumber double precision,signednumber double precision,sum character varying(20))",
     "CREATE TABLE statecontracts_fl94( source character varying(10),id character varying(36),year character varying(4),admittednumber double precision,notadmittednumber double precision,winnernumber double precision,signednumber double precision,sum character varying(20))",
@@ -888,7 +888,7 @@
         },
         {
           "name": "indexofduediligence",
-          "type": "double precision",
+          "type": "character varying(10)",
           "path": "IndexOfDueDiligenceIndex"
         },
         {
@@ -923,7 +923,7 @@
         },
         {
           "name": "okopf_name",
-          "type": "character varying(50)",
+          "type": "character varying(200)",
           "path": "OKOPFName"
         }
       ]
