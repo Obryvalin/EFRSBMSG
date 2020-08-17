@@ -8,9 +8,7 @@ const pgsql = require("./utils/PGSQL")
 const CRE = require("./utils/CRE")
 
 //=======================================================
-const {processtext,grabCount,cooldown,interval} = JSON.parse(fs.readFileSync("conf/service.json").toString());
-
-const { resdir } = JSON.parse(fs.readFileSync("conf/service.json").toString());
+const {processtext,grabCount,cooldown,interval,clsInterval,resdir} = JSON.parse(fs.readFileSync("conf/service.json").toString());
 if (!fs.existsSync(resdir)){fs.mkdirSync(resdir)}
 yargs.command({
   command: "run",
@@ -215,39 +213,45 @@ yargs.command({
 
 //===========================================================================================
 
+const loopstep = (workerName) =>{
+  pgsql.grabRequests(workerName,grabCount,()=>{
+    pgsql.getUnfinishedRequests(workerName,cooldown,(requests)=>{
+      if (requests)
+      {
+        requests.forEach((request)=>{
+          CRE.requestSPEXT({inn:request.inn,uid:request.id},(error,result)=>{
+            if (error || !result.response["@response"]){
+              log.timestamp("ERROR:\t"+chalk.redBright(request.source+"-"+request.id))
+              fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
+              log.timestamp("Error for Source:"+request.source+",ID:"+request.id)
+              pgsql.logError("Error for Source:"+request.source+",ID:"+request.id)
+            }
+            if (result){
+              log.timestamp("Response\t\t"+chalk.greenBright(request.source+"-"+request.id))
+              fs.writeFile(resdir+"\\"+request.source+request.id+".json",JSON.stringify(result),()=>{})
+               pgsql.submitResponse(request.source,request.id,result.response.JSON,()=>{
+              })
+            }
+          })
+        })
+      }
+    })
+  });
+pgsql.pingWorker(workerName)
+// pgsql.getStats();
+}
+
 const run = (workerName,callback) =>{
   if (workerName){
   process.title = processtext + " - " + workerName
   pgsql.registerWorker(workerName)
   log.cls(processtext,workerName);
   setInterval(()=>{
-    pgsql.grabRequests(workerName,grabCount,()=>{
-      pgsql.getUnfinishedRequests(workerName,cooldown,(requests)=>{
-        if (requests)
-        {
-          requests.forEach((request)=>{
-            CRE.requestSPEXT({inn:request.inn,uid:request.id},(error,result)=>{
-              if (error || !result.response["@response"]){
-                log.timestamp("ERROR:\t"+chalk.redBright(request.source+"-"+request.id))
-                fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
-                log.timestamp("Error for Source:"+request.source+",ID:"+request.id)
-                pgsql.logError("Error for Source:"+request.source+",ID:"+request.id)
-              }
-              if (result){
-                log.timestamp("Response\t\t"+chalk.greenBright(request.source+"-"+request.id))
-                fs.writeFile(resdir+"\\"+request.source+request.id+".json",JSON.stringify(result),()=>{})
-                 pgsql.submitResponse(request.source,request.id,result.response.JSON,()=>{
-                })
-              }
-            })
-          })
-        }
-      })
-    });
-  pgsql.pingWorker(workerName)
-  // pgsql.getStats();
+    loopstep(workerName)
   },interval);
-  
+  setInterval(()=>{
+    log.cls(processtext,workerName)
+  },clsInterval)
   }
 }
 
