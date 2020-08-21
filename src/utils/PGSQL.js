@@ -241,7 +241,7 @@ const getResponseData = (source,id,callback)=>{
 }
 //=====================================
 
-const structData =(report) =>{
+const structData =(source,id,report) =>{
   var resparray=[];
   dataStructure.forEach((entity)=>{
     rows = jp.query(report,entity.path)
@@ -343,7 +343,7 @@ const submitResponse = (source,id,response,callback) =>{
       // console.log("Report:")
       // console.log(report)
       // log.timestamp("Creating queries for "+source+"-"+id)
-      resparray = structData(report)
+      resparray = structData(source,id,report)
       result = "Found"
      }else{
        result = "Not Found"
