@@ -339,7 +339,7 @@ const submitResponse = (source,id,response,callback) =>{
     report = response.Response.Data.Report
     resultInfo = response.Response.ResultInfo
     if(report){
-      report = spext.tranform(report)
+      report = spext.transform(report)
       // console.log("Report:")
       // console.log(report)
       // log.timestamp("Creating queries for "+source+"-"+id)
