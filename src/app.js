@@ -251,6 +251,9 @@ const run = (workerName,callback) =>{
   },interval);
   setInterval(()=>{
     log.cls(processtext,workerName)
+    pgsql.getStats((stats)=>{
+      pgsql.printStats(stats)
+    })
   },clsInterval)
   }
 }
