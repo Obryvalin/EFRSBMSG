@@ -5,7 +5,7 @@ const yargs = require("yargs");
 const chalk = require("chalk");
 const log = require("./utils/log")
 const pgsql = require("./utils/PGSQL")
-const CRE = require("./utils/CRE")
+const EFRSB = require("./utils/EFRSB")
 
 //=======================================================
 const {processtext,grabCount,cooldown,interval,clsInterval,resdir} = JSON.parse(fs.readFileSync("conf/service.json").toString());
@@ -110,13 +110,13 @@ yargs.command({
     if (yargs.argv.json){
       log.timestamp("Insert for JSON: " + chalk.green(yargs.argv.json));
       try{
-      inns = JSON.parse(fs.readFileSync(yargs.argv.json).toString()).inns;
+      requests = JSON.parse(fs.readFileSync(yargs.argv.json).toString()).requests;
     } catch(error){
       log.timestamp("input file not found");
     }
-      if (inns){
-        log.timestamp(inns);
-        pgsql.insertQueries("INSERT",inns);
+      if (requests){
+        log.timestamp(requests);
+        pgsql.insertQueries("INSERT",requests);
         } else{
           log.timestamp("No Data!");
         }
@@ -125,18 +125,18 @@ yargs.command({
     if (yargs.argv.csv){
       log.timestamp("Insert for CSV: " + chalk.green(yargs.argv.csv));
       
-      var inns =[];
-      var innlist=[]
-      fs.createReadStream(yargs.argv.csv).pipe(csv())
-        .on('data',(data)=>inns.push(data))
+      var requests =[];
+      var reqlist=[]
+      fs.createReadStream(yargs.argv.csv).pipe(csv({ separator: ';' }))
+        .on('data',(data)=>requests.push(data))
         .on('end',()=>{
       
      
-          inns.forEach((innobj)=>{
-            innlist.push(innobj.INN)
+          requests.forEach((request)=>{
+            reqlist.push(request)
           })
-     
-      pgsql.insertQueries("INSERT",innlist);
+      console.log(requests)
+      pgsql.insertQueries("INSERT",reqlist);
     
 
     });
@@ -153,31 +153,7 @@ yargs.command({
   describe: "Testing current developement routine",
 
   handler() {
-    workerName ="test"
-    pgsql.grabRequests(workerName,grabCount,()=>{
-      pgsql.getUnfinishedRequests(workerName,cooldown,(requests)=>{
-        if (requests)
-        { 
-          // console.log(requests)
-          requests.forEach((request)=>{
-            CRE.requestSPEXT({inn:request.inn,uid:request.id},(error,result)=>{
-              if (error || !result.response["@response"]){
-                log.timestamp("ERROR:\t"+chalk.redBright(request.source+"-"+request.id))
-                fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
-                log.timestamp("Error for Source:"+request.source+",ID:"+request.id)
-                // pgsql.logError("Error for Source:"+request.source+",ID:"+request.id)
-              }
-              if (result){
-                log.timestamp("Response:\t"+chalk.greenBright(request.source+"-"+request.id))
-                fs.writeFile(resdir+"\\"+request.source+request.id+".json",JSON.stringify(result),()=>{})
-                 pgsql.submitResponse(request.source,request.id,result.response.JSON,()=>{
-                })
-              }
-            })
-          })
-        }
-      })
-    })
+    loopstep("test")
   }
 })
 
@@ -219,7 +195,7 @@ const loopstep = (workerName) =>{
       if (requests)
       {
         requests.forEach((request)=>{
-          CRE.requestSPEXT({inn:request.inn,uid:request.id},(error,result)=>{
+          EFRSB.getMessages(request,(error,result)=>{
             if (error || !result.response["@response"]){
               log.timestamp("ERROR:\t"+chalk.redBright(request.source+"-"+request.id))
               fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
@@ -227,10 +203,10 @@ const loopstep = (workerName) =>{
               pgsql.logError("Error for Source:"+request.source+",ID:"+request.id)
             }
             if (result){
-              log.timestamp("Response\t\t"+chalk.greenBright(request.source+"-"+request.id))
-              fs.writeFile(resdir+"\\"+request.source+request.id+".json",JSON.stringify(result),()=>{})
-               pgsql.submitResponse(request.source,request.id,result.response.JSON,()=>{
-              })
+              // log.timestamp("Response\t\t"+chalk.greenBright(request.source+"-"+request.id))
+              // fs.writeFile(resdir+"\\"+request.source+request.id+".json",JSON.stringify(result),()=>{})
+              //  pgsql.submitResponse(request.source,request.id,result.response.JSON,()=>{
+              // })
             }
           })
         })

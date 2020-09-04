@@ -21,6 +21,7 @@ const fixTags = (xml)=>{
    xml = xml.replace(/&gt;/g,">")
    xml = xml.replace(/&quot;/g,'"')
    xml = xml.replace(/&apos;/g,"'")
+   xml = xml.replace(/&#xD;/g,"")
       // console.log(xml)
       return xml
 }

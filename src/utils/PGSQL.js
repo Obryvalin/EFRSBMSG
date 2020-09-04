@@ -6,8 +6,6 @@ const path = require('path')
 const log = require('./log')
 const jp = require('jsonpath');
 
-const spext = require("./SPARK")
-
 
 const pgoptions = JSON.parse(fs.readFileSync("conf/pg.json").toString());
 const { dropQueries, createQueries, backupdir, dataStructure} = pgoptions;
@@ -46,7 +44,7 @@ const multiquery = (queries, callback) => {
       if (err) {
         log.timestamp(chalk.red(err))
         log.timestamp("Query was: "+query)
-        logError(chalk.red(err));
+        // logError(chalk.red(err));
       }
       donecnt = donecnt + 1;
     });
@@ -182,7 +180,7 @@ const logResponse = (source,id,result,callback) =>{
 }
 const logError = (error) =>{
   log.timestamp("Logging Error: "+error)
-  if(error) query("INSERT into errorlog(error,datetime) values('"+error+"',CURRENT_TIMESTAMP)");
+  if(error) query("INSERT into errorlog(error,datetime) values('"+error.replace("'","")+"',CURRENT_TIMESTAMP)");
 }
 
 
@@ -339,7 +337,7 @@ const submitResponse = (source,id,response,callback) =>{
     report = response.Response.Data.Report
     resultInfo = response.Response.ResultInfo
     if(report){
-      report = spext.transform(report)
+      // report = spext.transform(report)
       // console.log("Report:")
       // console.log(report)
       // log.timestamp("Creating queries for "+source+"-"+id)
@@ -358,27 +356,24 @@ const submitResponse = (source,id,response,callback) =>{
   
 }
 
-const insertQueries = (source, inns, callback) => {
+const insertQueries = (source, requests, callback) => {
   var reqid = 0;
   var cnt = 0;
-  inns.forEach((inn) => {
-    if (validate.INN(inn)) {
+  requests.forEach((request) => {
+    
       // log.timestamp("inserting "+inn)
-      insertRequest(source, reqid, inn,()=>{
+      insertRequest(source, reqid, request,()=>{
         // console.log("Inserted "+source+"-"+reqid)
         cnt+=1;
        
       });
-    } else {
-      logError("Invalid INN [" + inn + "]");
-      cnt+=1;
-    }
+    
     reqid = reqid + 1;
   })
   ;
   const intid = setInterval(()=>{
-    console.log(cnt+"/"+inns.length)
-    if (cnt==inns.length){
+    console.log(cnt+"/"+requests.length)
+    if (cnt==requests.length){
       
       pool.end();
       clearInterval(intid);
@@ -388,8 +383,8 @@ const insertQueries = (source, inns, callback) => {
  
 };
 
-const insertRequest = (source, id, inn, callback) => {
-  var sql ="Insert into reqdata(source,id,inn) values ('" +source +"','" + id + "','" + inn + "')";
+const insertRequest = (source, id, request, callback) => {
+  var sql ="Insert into reqdata(source,id,bankruptid,startdate) values ('" +source +"','" + id + "','" + request.bankruptid + "','"+request.startdate+"')";
   var sql2 = "Insert into log(source,id) values ('" + source + "','" + id + "')";
   // log.timestamp(sql)
   

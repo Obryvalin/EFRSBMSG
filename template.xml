@@ -1,17 +1,10 @@
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
-    xmlns:con="http://creditregistry.ru/2007/webservice/ConnectorService" 
-    xmlns:con1="http://connector.xws.mbtc.ru">
-    <soapenv:Header>
-        <con:cacheUse>@cacheUse@</con:cacheUse>
-        <con:uid>@uid@</con:uid>
-        <con:login>@login@</con:login>
-        <con:connectorCode>@connectorCode@</con:connectorCode>
-        <con:subRequestCode>@subRequestCode@</con:subRequestCode>
-        <con:password>@password@</con:password>
-    </soapenv:Header>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:tem="http://tempuri.org/">
+    <soapenv:Header/>
     <soapenv:Body>
-        <con:businessRequest>
-            <con1:inn>@inn@</con1:inn>
-        </con:businessRequest>
+        <tem:GetDebtorMessagesContentForPeriodByIdBankrupt>
+            <tem:idBankrupt>@bankruptid@</tem:idBankrupt>
+            <tem:startDate>@startdate@</tem:startDate>
+        </tem:GetDebtorMessagesContentForPeriodByIdBankrupt>
     </soapenv:Body>
 </soapenv:Envelope>
