@@ -1,11 +1,12 @@
 {
-  "name": "spext",
+  "name": "efrsbmsg",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
     "start": "node src/app.js run --workerName=\"WORKER\"",
-    "test": "node src/app.js init && node src/app.js insert --json=\"testreqdata.json\" && node src/app.js run --workerName=\"TESTER\"",
+    "test": "node src/app.js init && node src/app.js insert --csv=\"testreqdata.csv\" && node src/app.js run --workerName=\"TESTER\"",
+    "test1600": "node src/app.js init && node src/app.js insert --csv=\"testreqdata1500.csv\" && node src/app.js run --workerName=\"TESTER\"",
     "init": "node src/app.js init",
     "stats": "node src/app.js stats",
     "web": "node src/web.js"
@@ -18,7 +19,10 @@
     "csv-parser": "^2.3.3",
     "date-format": "^3.0.0",
     "express": "^4.17.1",
+    "fast-xml-parser": "^3.17.4",
     "hbs": "^4.1.1",
+    "jsonpath": "^1.0.2",
+    "map-factory": "^3.8.3",
     "pg": "^8.2.1",
     "request": "^2.88.2",
     "yargs": "^15.3.1"

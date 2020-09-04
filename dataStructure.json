@@ -1,0 +1,381 @@
+{
+  "dataStructure": {
+    "accessiblefindata": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "idperiod", "type": "double precision", "path": "" },
+      { "name": "name", "type": "character varying(20)", "path": "" },
+      { "name": "enddate", "type": "date", "path": "" }
+    ],
+    "adjustaddresses": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "postcode", "type": "character varying(6)", "path": "" },
+      { "name": "address", "type": "character varying(500)", "path": "" },
+      { "name": "region", "type": "character varying(50)", "path": "" },
+      { "name": "area", "type": "character varying(50)", "path": "" },
+      { "name": "city", "type": "character varying(50)", "path": "" },
+      { "name": "street", "type": "character varying(50)", "path": "" },
+      { "name": "house", "type": "character varying(50)", "path": "" },
+      { "name": "fiascode", "type": "character varying(140)", "path": "" },
+      { "name": "fiasregion", "type": "character varying(140)", "path": "" },
+      { "name": "fiasarea", "type": "character varying(140)", "path": "" },
+      { "name": "fiascity", "type": "character varying(140)", "path": "" },
+      { "name": "fiasplace", "type": "character varying(140)", "path": "" },
+      { "name": "fiasstreet", "type": "character varying(140)", "path": "" },
+      { "name": "actualdate", "type": "date", "path": "" }
+    ],
+    "arbitrationcases": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "year", "type": "character varying(4)", "path": "" },
+      { "name": "numberplaintiff", "type": "double precision", "path": "" },
+      { "name": "sumplaintiff", "type": "character varying(20)", "path": "" },
+      { "name": "numberdefendant", "type": "double precision", "path": "" },
+      { "name": "sumdefendant", "type": "character varying(20)", "path": "" },
+      { "name": "numberthird", "type": "double precision", "path": "" }
+    ],
+    "attr": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "resulttype", "type": "character varying(15)", "path": "" },
+      { "name": "executiontime", "type": "double precision", "path": "" }
+    ],
+    "bankruptcymessage": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "date", "type": "date", "path": "" },
+      { "name": "type", "type": "character varying(500)", "path": "" },
+      { "name": "casenumber", "type": "character varying(32)", "path": "" },
+      { "name": "idtype", "type": "character varying(20)", "path": "" }
+    ],
+    "boardofdirectors": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "actualdate", "type": "date", "path": "" },
+      { "name": "name", "type": "character varying(255)", "path": "" },
+      { "name": "birthdayyear", "type": "character varying(10)", "path": "" },
+      { "name": "code", "type": "character varying(50)", "path": "" },
+      { "name": "pos", "type": "character varying(50)", "path": "" },
+      { "name": "sharepart", "type": "character varying(12)", "path": "" },
+      { "name": "inn", "type": "character varying(15)", "path": "" }
+    ],
+    "eventslist": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "eventtypeid", "type": "character varying(255)", "path": "" },
+      { "name": "type", "type": "character varying(500)", "path": "" },
+      { "name": "date", "type": "date", "path": "" }
+    ],
+    "executivebody": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "actualdate", "type": "date", "path": "" },
+      { "name": "name", "type": "character varying(255)", "path": "" },
+      { "name": "birthdayyear", "type": "character varying(4)", "path": "" },
+      { "name": "code", "type": "character varying(50)", "path": "" },
+      { "name": "pos", "type": "character varying(50)", "path": "" },
+      { "name": "sharepart", "type": "character varying(5)", "path": "" },
+      { "name": "inn", "type": "character varying(15)", "path": "" }
+    ],
+    "faxlist": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "code", "type": "character varying(5)", "path": "" },
+      { "name": "number", "type": "character varying(10)", "path": "" },
+      { "name": "status", "type": "character varying(50)", "path": "" }
+    ],
+    "federaltaxregistration": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "regdate", "type": "date", "path": "" },
+      { "name": "regauthority", "type": "character varying(255)", "path": "" },
+      {
+        "name": "regauthorityaddress",
+        "type": "character varying(255)",
+        "path": ""
+      }
+    ],
+    "finance": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "balancetype", "type": "double precision", "path": "" },
+      { "name": "periodname", "type": "character varying(50)", "path": "" },
+      { "name": "datebegin", "type": "date", "path": "" },
+      { "name": "dateend", "type": "date", "path": "" },
+      { "name": "form", "type": "character varying(50)", "path": "" },
+      { "name": "section", "type": "character varying(255)", "path": "" },
+      { "name": "name", "type": "character varying(255)", "path": "" },
+      { "name": "code", "type": "double precision", "path": "" },
+      { "name": "value", "type": "character varying(50)", "path": "" },
+      { "name": "idfinpok", "type": "double precision", "path": "" }
+    ],
+    "includeinlist": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "listname", "type": "character varying(200)", "path": "" }
+    ],
+    "leaderlist": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "fio", "type": "character varying(255)", "path": "" },
+      { "name": "position", "type": "character varying(50)", "path": "" },
+      { "name": "actualdate", "type": "date", "path": "" },
+      { "name": "inn", "type": "character varying(255)", "path": "" }
+    ],
+    "legaladdresses": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "postcode", "type": "character varying(6)", "path": "" },
+      { "name": "address", "type": "character varying(500)", "path": "" },
+      { "name": "region", "type": "character varying(50)", "path": "" },
+      { "name": "area", "type": "character varying(50)", "path": "" },
+      { "name": "city", "type": "character varying(50)", "path": "" },
+      { "name": "street", "type": "character varying(50)", "path": "" },
+      { "name": "house", "type": "character varying(50)", "path": "" },
+      { "name": "fiascode", "type": "character varying(140)", "path": "" },
+      { "name": "fiasregion", "type": "character varying(140)", "path": "" },
+      { "name": "fiasarea", "type": "character varying(140)", "path": "" },
+      { "name": "fiascity", "type": "character varying(140)", "path": "" },
+      { "name": "fiasplace", "type": "character varying(140)", "path": "" },
+      { "name": "fiasstreet", "type": "character varying(140)", "path": "" },
+      { "name": "actualdate", "type": "date", "path": "" }
+    ],
+    "log": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "worker", "type": "character varying(10)", "path": "" },
+      { "name": "snd", "type": "timestamp with time zone", "path": "" },
+      { "name": "rep", "type": "timestamp with time zone", "path": "" },
+      { "name": "result", "type": "character varying(5)", "path": "" }
+    ],
+    "logerr": [
+      { "name": "datetime", "type": "character varying(10)", "path": "" },
+      { "name": "syscc", "type": "double precision", "path": "" },
+      { "name": "errmsg", "type": "character varying(100)", "path": "" }
+    ],
+    "okvedlist": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "code", "type": "character varying(32)", "path": "" },
+      { "name": "name", "type": "character varying(500)", "path": "" },
+      { "name": "ismain", "type": "character varying(5)", "path": "" }
+    ],
+    "personswithoutwarrant": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "actualdate", "type": "date", "path": "" },
+      { "name": "name", "type": "character varying(255)", "path": "" },
+      { "name": "pos", "type": "character varying(50)", "path": "" },
+      { "name": "inn", "type": "character varying(255)", "path": "" }
+    ],
+    "phonelist": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "code", "type": "character varying(5)", "path": "" },
+      { "name": "number", "type": "character varying(10)", "path": "" },
+      { "name": "status", "type": "character varying(50)", "path": "" }
+    ],
+    "previousaddresses": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "postcode", "type": "character varying(6)", "path": "" },
+      { "name": "address", "type": "character varying(500)", "path": "" },
+      { "name": "region", "type": "character varying(50)", "path": "" },
+      { "name": "area", "type": "character varying(50)", "path": "" },
+      { "name": "city", "type": "character varying(50)", "path": "" },
+      { "name": "street", "type": "character varying(50)", "path": "" },
+      { "name": "house", "type": "character varying(50)", "path": "" },
+      { "name": "fiascode", "type": "character varying(140)", "path": "" },
+      { "name": "fiasregion", "type": "character varying(140)", "path": "" },
+      { "name": "fiasarea", "type": "character varying(140)", "path": "" },
+      { "name": "fiascity", "type": "character varying(140)", "path": "" },
+      { "name": "fiasplace", "type": "character varying(140)", "path": "" },
+      { "name": "fiasstreet", "type": "character varying(140)", "path": "" },
+      { "name": "actualdate", "type": "date", "path": "" }
+    ],
+    "report": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "character varying(100)", "path": "" },
+      { "name": "status", "type": "character varying(200)", "path": "" },
+      { "name": "egrpoincluded", "type": "character varying(5)", "path": "" },
+      {
+        "name": "egrullikvidation",
+        "type": "character varying(5)",
+        "path": ""
+      },
+      { "name": "isacting", "type": "character varying(5)", "path": "" },
+      { "name": "datefirstreg", "type": "date", "path": "" },
+      { "name": "shortnamerus", "type": "character varying(255)", "path": "" },
+      { "name": "shortnameen", "type": "character varying(255)", "path": "" },
+      { "name": "fullnamerus", "type": "character varying(500)", "path": "" },
+      { "name": "normname", "type": "character varying(500)", "path": "" },
+      { "name": "inn", "type": "character varying(12)", "path": "" },
+      { "name": "kpp", "type": "character varying(12)", "path": "" },
+      { "name": "ogrn", "type": "character varying(15)", "path": "" },
+      { "name": "okpo", "type": "character varying(15)", "path": "" },
+      { "name": "fcsmcode", "type": "character varying(15)", "path": "" },
+      { "name": "rts", "type": "character varying(15)", "path": "" },
+      { "name": "okato", "type": "character varying(11)", "path": "" },
+      { "name": "okogu", "type": "character varying(7)", "path": "" },
+      { "name": "okfs", "type": "character varying(5)", "path": "" },
+      { "name": "okopf", "type": "character varying(2)", "path": "" },
+      { "name": "okopf_new", "type": "character varying(10)", "path": "" },
+      { "name": "chartercapital", "type": "double precision", "path": "" },
+      { "name": "email", "type": "character varying(255)", "path": "" },
+      { "name": "www", "type": "character varying(255)", "path": "" },
+      { "name": "workersrange", "type": "character varying(50)", "path": "" },
+      { "name": "address", "type": "character varying(500)", "path": "" },
+      { "name": "creditriskvalue", "type": "double precision", "path": "" },
+      { "name": "creditriskdesc", "type": "character varying(50)", "path": "" },
+      {
+        "name": "failurescorevalue",
+        "type": "character varying(10)",
+        "path": ""
+      },
+      {
+        "name": "failurescoredesc",
+        "type": "character varying(100)",
+        "path": ""
+      },
+      { "name": "paymentindexvalue", "type": "double precision", "path": "" },
+      {
+        "name": "paymentindexdesc",
+        "type": "character varying(50)",
+        "path": ""
+      },
+      {
+        "name": "companysize_revenue",
+        "type": "character varying(10)",
+        "path": ""
+      },
+      { "name": "companysize", "type": "character varying(512)", "path": "" },
+      { "name": "sametelephonecount", "type": "double precision", "path": "" },
+      { "name": "sameaddresscount", "type": "double precision", "path": "" },
+      {
+        "name": "samemanagercountincountry",
+        "type": "double precision",
+        "path": ""
+      },
+      {
+        "name": "samemanagercountinregion",
+        "type": "double precision",
+        "path": ""
+      },
+      { "name": "indexofduediligence", "type": "double precision", "path": "" },
+      {
+        "name": "okato_regionname",
+        "type": "character varying(50)",
+        "path": ""
+      },
+      {
+        "name": "okato_regioncode",
+        "type": "character varying(2)",
+        "path": ""
+      },
+      { "name": "okoguname", "type": "character varying(200)", "path": "" },
+      { "name": "okfsname", "type": "character varying(100)", "path": "" },
+      { "name": "statusdate", "type": "date", "path": "" },
+      {
+        "name": "indexofduediligencedesc",
+        "type": "character varying(50)",
+        "path": ""
+      },
+      { "name": "okopf_name", "type": "character varying(50)", "path": "" }
+    ],
+    "reqdata": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "inn", "type": "character varying(12)", "path": "" }
+    ],
+    "statecontracts_fl223": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "year", "type": "character varying(4)", "path": "" },
+      { "name": "admittednumber", "type": "double precision", "path": "" },
+      { "name": "notadmittednumber", "type": "double precision", "path": "" },
+      { "name": "winnernumber", "type": "double precision", "path": "" },
+      { "name": "signednumber", "type": "double precision", "path": "" },
+      { "name": "sum", "type": "character varying(20)", "path": "" }
+    ],
+    "statecontracts_fl94": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "year", "type": "character varying(4)", "path": "" },
+      { "name": "admittednumber", "type": "double precision", "path": "" },
+      { "name": "notadmittednumber", "type": "double precision", "path": "" },
+      { "name": "winnernumber", "type": "double precision", "path": "" },
+      { "name": "signednumber", "type": "double precision", "path": "" },
+      { "name": "sum", "type": "character varying(20)", "path": "" }
+    ],
+    "structureinfo": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "countcoownerfcsm", "type": "double precision", "path": "" },
+      { "name": "countcoownerrosstat", "type": "double precision", "path": "" },
+      { "name": "countcoowneregrul", "type": "double precision", "path": "" },
+      { "name": "countbranch", "type": "double precision", "path": "" },
+      { "name": "countbranchrosstat", "type": "double precision", "path": "" },
+      {
+        "name": "countaffiliatedcompanyfcsm",
+        "type": "double precision",
+        "path": ""
+      },
+      {
+        "name": "countaffiliatedcompanyrosstat",
+        "type": "double precision",
+        "path": ""
+      },
+      {
+        "name": "countaffiliatedcompanyegrul",
+        "type": "double precision",
+        "path": ""
+      },
+      {
+        "name": "nonprofitorganizationrosstat",
+        "type": "double precision",
+        "path": ""
+      }
+    ],
+    "tables": [
+      { "name": "table_name", "type": "character varying(50)", "path": "" },
+      {
+        "name": "table_description",
+        "type": "character varying(100)",
+        "path": ""
+      }
+    ],
+    "vestnikmessage": [
+      { "name": "source", "type": "character varying(10)", "path": "" },
+      { "name": "id", "type": "character varying(36)", "path": "" },
+      { "name": "sparkid", "type": "double precision", "path": "" },
+      { "name": "date", "type": "date", "path": "" },
+      { "name": "type", "type": "character varying(500)", "path": "" },
+      { "name": "casenumber", "type": "character varying(32)", "path": "" },
+      { "name": "idtype", "type": "character varying(20)", "path": "" },
+      { "name": "text", "type": "character varying(1024)", "path": "" }
+    ]
+  }
+}

@@ -1,24 +1,22 @@
 {
-    "user": "postgres",
-    "password": "postgres",
-
-    "host": "localhost",
-    "port": 1988,
-    "database": "SPEXT",
-    "backupdir":"\\..\\..\\backup",
+  "user": "postgres",
+  "password": "postgres",
+  "host": "localhost",
+  "port": 1988,
+  "database": "EFRSBMSG",
+  "backupdir": "\\..\\..\\backup",
+  "dropQueries": [
+    "DROP table log",
+    "DROP table reqdata",
+    "DROP table resdata",
+    "DROP table errorlog" 
     
-    "dropQueries":[
-      "DROP TABLE public.log",
-      "DROP TABLE public.resdata",
-      "DROP TABLE public.reqdata",
-      "DROP TABLE public.workers",
-      "DROP TABLE public.errorlog"
-    ],
-    "createQueries":[
-      "CREATE TABLE public.log (    source character varying,    id character varying,    worker character varying,    snd timestamp without time zone,    rep timestamp without time zone,    result character varying)",
-      "CREATE TABLE public.reqdata (source character varying,    id character varying,    inn character varying)",
-      "CREATE TABLE public.resdata (source character varying,    id character varying,    found character varying,    listname character varying)",
-      "CREATE TABLE public.workers (workerName character varying, updated timestamp without time zone)",
-      "CREATE TABLE public.errorlog (error character varying, datetime timestamp without time zone)"
-    ]
-  }
+  ],
+  "createQueries": [
+    "CREATE TABLE log(source character varying(10),id character varying(36),worker character varying(10),snd timestamp with time zone,rep timestamp with time zone,result character varying(5))",
+    "CREATE TABLE errorlog (error character varying, datetime timestamp with time zone)",
+    "CREATE TABLE reqdata(source character varying(10),id character varying(36),bankruptid character varying(12),startdate date)",
+    "CREATE TABLE resdata(source character varying(10),id character varying(36))",
+    "CREATE TABLE workers(workername character varying(10),updated timestamp with time zone)"
+     ]
+}

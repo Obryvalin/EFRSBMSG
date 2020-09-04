@@ -5,12 +5,10 @@ const yargs = require("yargs");
 const chalk = require("chalk");
 const log = require("./utils/log")
 const pgsql = require("./utils/PGSQL")
-const CRE = require("./utils/CRE")
+const EFRSB = require("./utils/EFRSB")
 
 //=======================================================
-const {processtext,grabCount,cooldown,interval} = JSON.parse(fs.readFileSync("conf/service.json").toString());
-
-const { resdir } = JSON.parse(fs.readFileSync("conf/service.json").toString());
+const {processtext,grabCount,cooldown,interval,clsInterval,resdir} = JSON.parse(fs.readFileSync("conf/service.json").toString());
 if (!fs.existsSync(resdir)){fs.mkdirSync(resdir)}
 yargs.command({
   command: "run",
@@ -112,13 +110,13 @@ yargs.command({
     if (yargs.argv.json){
       log.timestamp("Insert for JSON: " + chalk.green(yargs.argv.json));
       try{
-      inns = JSON.parse(fs.readFileSync(yargs.argv.json).toString()).inns;
+      requests = JSON.parse(fs.readFileSync(yargs.argv.json).toString()).requests;
     } catch(error){
       log.timestamp("input file not found");
     }
-      if (inns){
-        log.timestamp(inns);
-        pgsql.insertQueries("INSERT",inns);
+      if (requests){
+        log.timestamp(requests);
+        pgsql.insertQueries("INSERT",requests);
         } else{
           log.timestamp("No Data!");
         }
@@ -127,13 +125,20 @@ yargs.command({
     if (yargs.argv.csv){
       log.timestamp("Insert for CSV: " + chalk.green(yargs.argv.csv));
       
-      var inns =[];
-      fs.createReadStream(yargs.argv.csv).pipe(csv())
-        .on('data',(data)=>inns.push(data['0']))
+      var requests =[];
+      var reqlist=[]
+      fs.createReadStream(yargs.argv.csv).pipe(csv({ separator: ';' }))
+        .on('data',(data)=>requests.push(data))
         .on('end',()=>{
       
-      log.timestamp(inns);
-      pgsql.insertQueries("INSERT",inns);
+     
+          requests.forEach((request)=>{
+            reqlist.push(request)
+          })
+      console.log(requests)
+      pgsql.insertQueries("INSERT",reqlist);
+    
+
     });
     }
     if (!yargs.argv.csv && !yargs.argv.json){
@@ -148,12 +153,9 @@ yargs.command({
   describe: "Testing current developement routine",
 
   handler() {
-    pgsql.getStats((stats)=>{
-      
-    })
-    
-  },
-});
+    loopstep("test")
+  }
+})
 
 
 yargs.command({
@@ -187,46 +189,54 @@ yargs.command({
 
 //===========================================================================================
 
+const loopstep = (workerName) =>{
+  pgsql.grabRequests(workerName,grabCount,()=>{
+    pgsql.getUnfinishedRequests(workerName,cooldown,(requests)=>{
+      if (requests)
+      {
+        requests.forEach((request)=>{
+          EFRSB.getMessages(request,(error,result)=>{
+            if (error || !result.response["@response"]){
+              log.timestamp("ERROR:\t"+chalk.redBright(request.source+"-"+request.id))
+              fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
+              log.timestamp("Error for Source:"+request.source+",ID:"+request.id)
+              pgsql.logError("Error for Source:"+request.source+",ID:"+request.id)
+            }
+            if (result){
+              // log.timestamp("Response\t\t"+chalk.greenBright(request.source+"-"+request.id))
+              // fs.writeFile(resdir+"\\"+request.source+request.id+".json",JSON.stringify(result),()=>{})
+              //  pgsql.submitResponse(request.source,request.id,result.response.JSON,()=>{
+              // })
+            }
+          })
+        })
+      }
+    })
+  });
+pgsql.pingWorker(workerName)
+// pgsql.getStats();
+}
+
 const run = (workerName,callback) =>{
   if (workerName){
   process.title = processtext + " - " + workerName
   pgsql.registerWorker(workerName)
   log.cls(processtext,workerName);
   setInterval(()=>{
-    pgsql.grabRequests(workerName,grabCount,()=>{
-      pgsql.getUnfinishedRequests(workerName,cooldown,(requests)=>{
-        if (requests)
-        {
-          requests.forEach((request)=>{
-            CRE.requestSPEXT(request.inn,(error,result)=>{
-             
-             
-             
-              if (error){
-                fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
-                log.timestamp("Error for Source:"+request.source+",ID:"+request.id)
-                pgsql.logError("Error for Source:"+request.source+",ID:"+request.id)
-              }
-              if (result){
-                fs.writeFile(resdir+"\\"+request.source+request.id+".json",JSON.stringify(result),()=>{})
-               pgsql.submitResponse(request.source,request.id,result,()=>{
-              
-              })
-            }})
-          })
-        }
-      })
-    });
-  pgsql.pingWorker(workerName)
-  // pgsql.getStats();
+    loopstep(workerName)
   },interval);
-  
+  setInterval(()=>{
+    log.cls(processtext,workerName)
+    pgsql.getStats((stats)=>{
+      pgsql.printStats(stats)
+    })
+  },clsInterval)
   }
 }
 
 
 const single = (inn,callback)=>{
-  FBR24.check(inn, (error, response) => {
+  CRE.requestSPEXT(inn, (error, response) => {
     log.timestamp(
       chalk.underline.blueBright(
         "Результат для ИНН " + chalk.yellow(inn) + ":"
@@ -253,7 +263,7 @@ const manual = (inns, callback) => {
 
   
     inns.forEach((inn) => {
-      FBR24.check(inn, (error, response) => {
+      CRE.requestSPEXT(inn, (error, response) => {
         log.timestamp(
           chalk.underline.blueBright(
             "Результат для ИНН " + chalk.yellow(inn) + ":"

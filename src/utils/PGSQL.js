@@ -1,12 +1,15 @@
 const chalk = require("chalk");
 const{Pool} = require("pg");
 const fs = require("fs");
-const INN = require("./inn");
+const validate = require("./validate");
 const path = require('path')
 const log = require('./log')
+const jp = require('jsonpath');
+
 
 const pgoptions = JSON.parse(fs.readFileSync("conf/pg.json").toString());
-const { dropQueries, createQueries, backupdir} = pgoptions;
+const { dropQueries, createQueries, backupdir, dataStructure} = pgoptions;
+
 if (!fs.existsSync(backupdir)){fs.mkdirSync(backupdir)};
 //log.timestamp(pgoptions);
 pool = new Pool(pgoptions)
@@ -36,21 +39,27 @@ const multiquery = (queries, callback) => {
   var donecnt = 0;
   
   queries.forEach((query) => {
+    
     pool.query(query, (err, res) => {
       if (err) {
         log.timestamp(chalk.red(err))
-        logError(chalk.red(err));
+        log.timestamp("Query was: "+query)
+        // logError(chalk.red(err));
       }
       donecnt = donecnt + 1;
     });
   });
   const intid = setInterval(() => {
-    
+    log.timestamp(donecnt+"/"+qcnt)
     if (donecnt == qcnt) {
       clearInterval(intid);
     
       callback();
     }
+    if (donecnt > qcnt){
+      console.log("Multiquery error! Donecnt:"+donecnt+", qcnt:"+qcnt)
+    }
+    
   }, 50);
 };
 
@@ -71,13 +80,17 @@ const backup = (callback) => {
   query(
     "select tablename from pg_tables where schemaname = 'public'",
     (error, result) => {
+      if (error || !result){
+        log.timestamp("DB ERROR: "+error)
+        if (callback){callback()}
+      }
       log.timestamp("Backuping Database");
       log.timestamp(result.rows);
       result.rows.forEach((row) => {
         sqls.push(
           "COPY " + row.tablename + " TO '" + backup + "\\" + row.tablename + ".csv' DELIMITER ';' CSV HEADER;"
         );
-      });
+      }); 
       multiquery(sqls, () => {
         log.timestamp("Backup complete!");
         if (callback) {
@@ -139,7 +152,7 @@ const getUnfinishedRequests = (workerName,cooldown,callback)=>{
     if (!err) {
      
       requestsToSend.rows.forEach((row)=>{
-        log.timestamp("Request :" + chalk.yellowBright(row.source+"-"+row.id))
+        log.timestamp("Request\t" + chalk.yellowBright(row.source+"-"+row.id))
         logSend(row.source,row.id)
       })
     
@@ -158,13 +171,16 @@ const logSend = (source,id,callback) =>{
 }
 
 const logResponse = (source,id,result,callback) =>{
+  
   sql = "Update log set rep = current_timestamp, result='"+result+"' where source = '"+source+"' and id = '"+id+"'";
+  // console.log("logResponse  "+sql)
   query(sql,()=>{
     if(callback){callback();}
   });
 }
 const logError = (error) =>{
-  if(error) query("INSERT into errorlog(error,datetime) values('"+error+"',CURRENT_TIMESTAMP)");
+  log.timestamp("Logging Error: "+error)
+  if(error) query("INSERT into errorlog(error,datetime) values('"+error.replace("'","")+"',CURRENT_TIMESTAMP)");
 }
 
 
@@ -223,60 +239,152 @@ const getResponseData = (source,id,callback)=>{
 }
 //=====================================
 
-const submitResponse = (source,id,response,callback) =>{
+const structData =(source,id,report) =>{
   var resparray=[];
+  dataStructure.forEach((entity)=>{
+    rows = jp.query(report,entity.path)
+    rows = rows[0]
+    // console.log("Row Name "+entity.name)
+    // console.log("Row Path " +entity.path)
+    // console.log(rows)
+    
+    if (rows){
+      if (Array.isArray(rows)){
+        for (row=0;row<rows.length;row++){
+          res = "INSERT INTO "+ entity.name+" (source,id,"
+          entity.structure.forEach((attr)=>{
+         
+            res+=attr.name+","
+         
+          })
+          res+=") values('"+source+"','"+id+"',"
+          entity.structure.forEach((attr)=>{
+            let value = jp.query(rows[row] || {},"$['"+attr.path+"']")
+            value = value[0]
+            // console.log("attr.name:\t"+attr.name+"\tattr.path\t"+attr.path+"\tvalue:\t"+value)
+            if (attr.type=="date"){
+              if (!value) {
+                value = "null"
+                res+=value+","
+              }
+              else{
+                res+="'"+value+"',"
+              }
+            }
+            if (attr.type =="double precision" ){
+              if (!value) value = "null"
+              res+=value+","
+            }
+            if (attr.type!="date" && attr.type!="double precision"){
+              value = value ||""
+              value = value.toString().replace(/[\'\"\t]/g," ")
+              res+="'"+value+"',"
+            }
+          })
+          res+=")"
+          res = res.replace(/\,\)/g,")")
+          // console.log("Res:")
+          // console.log(res)
+          resparray.push(res)
+        }
+      } else{
+        res = "INSERT INTO "+ entity.name+" (source,id,"
+          entity.structure.forEach((attr)=>{
+           
+            res+=attr.name+","
+           
+          })
+          res+=") values('"+source+"','"+id+"',"
+          entity.structure.forEach((attr)=>{
+            let value = jp.query(rows || {},"$['"+attr.path+"']")
+            value = value[0]
+            // console.log("attr.name:\t"+attr.name+"\tattr.path\t"+attr.path+"\tvalue:\t"+value)
+            if (attr.type=="date"){
+              if (!value) {
+                value = "null"
+                res+=value+","
+              }
+              else{
+                res+="'"+value+"',"
+              }
+            }
+            if (attr.type =="double precision" ){
+              if (!value) value = "null"
+              res+=value+","
+            }
+            if (attr.type!="date" && attr.type!="double precision"){
+              value = value ||""
+              value = value.toString().replace(/[\'\"\t]/g," ")
+              res+="'"+value+"',"
+            }
+          })
+          res+=")"
+          res = res.replace(/\,\)/g,")")
+          // console.log("Res:")
+          // console.log(res)
+          resparray.push(res)
+          
+      }
+      
+    } 
+    
+  })
+  return resparray
+}
   
-
+const submitResponse = (source,id,response,callback) =>{
   if (response) {
-   
-    if(response.lists){
-    if (response.lists.list.length > 1) {
-      response.lists.list.forEach((list) => {
-        // log.timestamp("insert into resdata(source,id,found,list) values('"+source+"','"+id+"','"+"Y"+"','"+list.name+"')")
-        resparray.push("insert into resdata(source,id,found,listname) values('"+source+"','"+id+"','"+"Y"+"','"+list.name+"')")
-       
-      });
-      result = "found";
-    } else if (response.lists.list) {
-      // log.timestamp("insert into resdata(source,id,found,list) values('"+source+"','"+id+"','"+"Y"+"','"+response.lists.list.name+"')");
-      resparray.push("insert into resdata(source,id,found,listname) values('"+source+"','"+id+"','"+"Y"+"','"+response.lists.list.name+"')")
-      result = "found";
+    report = response.Response.Data.Report
+    resultInfo = response.Response.ResultInfo
+    if(report){
+      // report = spext.transform(report)
+      // console.log("Report:")
+      // console.log(report)
+      // log.timestamp("Creating queries for "+source+"-"+id)
+      resparray = structData(source,id,report)
+      result = "Found"
+     }else{
+       result = "Not Found"
+      }
     }
-  } else {
-    resparray.push("insert into resdata(source,id,found,listname) values('"+source+"','"+id+"','"+"N"+"','"+""+"')")
-    result = "not found";
-  }}
+  // console.log("RespArray: " +source+"-"+id)
+  // console.log(resparray)
   multiquery(resparray,()=>{
-    log.timestamp("Response: " + chalk.greenBright(source+"-"+id))
+    log.timestamp("Loaded\t" + chalk.greenBright(source+"-"+id))
     logResponse(source,id,result);
   })
   
 }
 
-const insertQueries = (source, inns, callback) => {
+const insertQueries = (source, requests, callback) => {
   var reqid = 0;
-  inns.forEach((inn) => {
-    if (INN.validateINN(inn)) {
-      log.timestamp("inserting "+inn)
-      insertRequest(source, reqid, inn);
-    } else {
-      logError("Invalid INN [" + inn + "]");
-    }
+  var cnt = 0;
+  requests.forEach((request) => {
+    
+      // log.timestamp("inserting "+inn)
+      insertRequest(source, reqid, request,()=>{
+        // console.log("Inserted "+source+"-"+reqid)
+        cnt+=1;
+       
+      });
+    
     reqid = reqid + 1;
   })
   ;
   const intid = setInterval(()=>{
-    if (reqid==inns.length){
+    console.log(cnt+"/"+requests.length)
+    if (cnt==requests.length){
+      
       pool.end();
       clearInterval(intid);
       log.timestamp("Inserted!")
     }
-  },500);
+  },5000);
  
 };
 
-const insertRequest = (source, id, inn, callback) => {
-  var sql ="Insert into reqdata(source,id,inn) values ('" +source +"','" + id + "','" + inn + "')";
+const insertRequest = (source, id, request, callback) => {
+  var sql ="Insert into reqdata(source,id,bankruptid,startdate) values ('" +source +"','" + id + "','" + request.bankruptid + "','"+request.startdate+"')";
   var sql2 = "Insert into log(source,id) values ('" + source + "','" + id + "')";
   // log.timestamp(sql)
   
@@ -284,6 +392,7 @@ const insertRequest = (source, id, inn, callback) => {
   pool.query(sql, (err, res) => {
     if (err) {
       logError(err);
+      
     }
     if (!err) {
       
