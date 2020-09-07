@@ -51,7 +51,7 @@ const multiquery = (queries, callback) => {
     });
   });
   const intid = setInterval(() => {
-    log.timestamp(donecnt+"/"+qcnt)
+    // log.timestamp(donecnt+"/"+qcnt)
     if (donecnt == qcnt) {
       clearInterval(intid);
     
