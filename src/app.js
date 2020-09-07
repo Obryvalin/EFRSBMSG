@@ -196,13 +196,13 @@ const loopstep = (workerName) =>{
       {
         requests.forEach((request)=>{
           EFRSB.getMessages(request,(error,result)=>{
-            if (error || !result){
+            if (error){
               log.timestamp("ERROR:\t"+chalk.redBright(request.source+"-"+request.id))
-              fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
+              fs.writeFile(resdir+"\\"+request.source+request.id+".json",error,()=>{})
               log.timestamp("Error for Source:"+request.source+",ID:"+request.id + " "+ error)
               pgsql.logError("Error for Source:"+request.source+",ID:"+request.id + " "+ error)
             }
-            if (result){
+            else{
               log.timestamp("Response\t\t"+chalk.greenBright(request.source+"-"+request.id))
               fs.writeFile(resdir+"\\"+request.source+request.id+".json",JSON.stringify(result),()=>{})
                pgsql.submitResponse(request.source,request.id,result,()=>{
