@@ -196,17 +196,17 @@ const loopstep = (workerName) =>{
       {
         requests.forEach((request)=>{
           EFRSB.getMessages(request,(error,result)=>{
-            if (error || !result.response["@response"]){
+            if (error){
               log.timestamp("ERROR:\t"+chalk.redBright(request.source+"-"+request.id))
-              fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
-              log.timestamp("Error for Source:"+request.source+",ID:"+request.id)
-              pgsql.logError("Error for Source:"+request.source+",ID:"+request.id)
+              fs.writeFile(resdir+"\\"+request.source+request.id+".json",error,()=>{})
+              log.timestamp("Error for Source:"+request.source+",ID:"+request.id + " "+ error)
+              pgsql.logError("Error for Source:"+request.source+",ID:"+request.id + " "+ error)
             }
-            if (result){
-              // log.timestamp("Response\t\t"+chalk.greenBright(request.source+"-"+request.id))
-              // fs.writeFile(resdir+"\\"+request.source+request.id+".json",JSON.stringify(result),()=>{})
-              //  pgsql.submitResponse(request.source,request.id,result.response.JSON,()=>{
-              // })
+            else{
+              log.timestamp("Response\t\t"+chalk.greenBright(request.source+"-"+request.id))
+              fs.writeFile(resdir+"\\"+request.source+request.id+".json",JSON.stringify(result),()=>{})
+               pgsql.submitResponse(request.source,request.id,result,()=>{
+              })
             }
           })
         })

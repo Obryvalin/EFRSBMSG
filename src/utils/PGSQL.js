@@ -5,6 +5,7 @@ const validate = require("./validate");
 const path = require('path')
 const log = require('./log')
 const jp = require('jsonpath');
+const EFRSB = require("./EFRSB");
 
 
 const pgoptions = JSON.parse(fs.readFileSync("conf/pg.json").toString());
@@ -172,7 +173,7 @@ const logSend = (source,id,callback) =>{
 
 const logResponse = (source,id,result,callback) =>{
   
-  sql = "Update log set rep = current_timestamp, result='"+result+"' where source = '"+source+"' and id = '"+id+"'";
+  sql = "Update log set rep = current_timestamp, result= '"+result+"' where source = '"+source+"' and id = '"+id+"'";
   // console.log("logResponse  "+sql)
   query(sql,()=>{
     if(callback){callback();}
@@ -238,123 +239,42 @@ const getResponseData = (source,id,callback)=>{
   })
 }
 //=====================================
-
-const structData =(source,id,report) =>{
-  var resparray=[];
-  dataStructure.forEach((entity)=>{
-    rows = jp.query(report,entity.path)
-    rows = rows[0]
-    // console.log("Row Name "+entity.name)
-    // console.log("Row Path " +entity.path)
-    // console.log(rows)
-    
-    if (rows){
-      if (Array.isArray(rows)){
-        for (row=0;row<rows.length;row++){
-          res = "INSERT INTO "+ entity.name+" (source,id,"
-          entity.structure.forEach((attr)=>{
-         
-            res+=attr.name+","
-         
-          })
-          res+=") values('"+source+"','"+id+"',"
-          entity.structure.forEach((attr)=>{
-            let value = jp.query(rows[row] || {},"$['"+attr.path+"']")
-            value = value[0]
-            // console.log("attr.name:\t"+attr.name+"\tattr.path\t"+attr.path+"\tvalue:\t"+value)
-            if (attr.type=="date"){
-              if (!value) {
-                value = "null"
-                res+=value+","
-              }
-              else{
-                res+="'"+value+"',"
-              }
-            }
-            if (attr.type =="double precision" ){
-              if (!value) value = "null"
-              res+=value+","
-            }
-            if (attr.type!="date" && attr.type!="double precision"){
-              value = value ||""
-              value = value.toString().replace(/[\'\"\t]/g," ")
-              res+="'"+value+"',"
-            }
-          })
-          res+=")"
-          res = res.replace(/\,\)/g,")")
-          // console.log("Res:")
-          // console.log(res)
-          resparray.push(res)
-        }
-      } else{
-        res = "INSERT INTO "+ entity.name+" (source,id,"
-          entity.structure.forEach((attr)=>{
-           
-            res+=attr.name+","
-           
-          })
-          res+=") values('"+source+"','"+id+"',"
-          entity.structure.forEach((attr)=>{
-            let value = jp.query(rows || {},"$['"+attr.path+"']")
-            value = value[0]
-            // console.log("attr.name:\t"+attr.name+"\tattr.path\t"+attr.path+"\tvalue:\t"+value)
-            if (attr.type=="date"){
-              if (!value) {
-                value = "null"
-                res+=value+","
-              }
-              else{
-                res+="'"+value+"',"
-              }
-            }
-            if (attr.type =="double precision" ){
-              if (!value) value = "null"
-              res+=value+","
-            }
-            if (attr.type!="date" && attr.type!="double precision"){
-              value = value ||""
-              value = value.toString().replace(/[\'\"\t]/g," ")
-              res+="'"+value+"',"
-            }
-          })
-          res+=")"
-          res = res.replace(/\,\)/g,")")
-          // console.log("Res:")
-          // console.log(res)
-          resparray.push(res)
-          
-      }
-      
-    } 
-    
-  })
-  return resparray
-}
   
-const submitResponse = (source,id,response,callback) =>{
-  if (response) {
-    report = response.Response.Data.Report
-    resultInfo = response.Response.ResultInfo
-    if(report){
-      // report = spext.transform(report)
-      // console.log("Report:")
-      // console.log(report)
-      // log.timestamp("Creating queries for "+source+"-"+id)
-      resparray = structData(source,id,report)
-      result = "Found"
-     }else{
-       result = "Not Found"
-      }
+const submitResponse = (source,id,messages,callback) =>{
+  let EFRSBResponse = []
+  let resparray = []
+  result = "not found"
+  if (messages) {
+    result = "found"
+    if (Array.isArray(messages.MessageData)){
+      messages.MessageData.forEach((messageData)=>{
+        EFRSBResponse.push(EFRSB.analyzeMessageInfo(messageData))
+      })
     }
+    else{
+      EFRSBResponse.push(EFRSB.analyzeMessageInfo(messages.MessageData))
+    }
+
+    EFRSBResponse.forEach((response)=>{
+      response.messages.forEach((message)=>{
+        resparray.push("INSERT INTO messages(source,id,messageid,type,date) values('"+source+"','"+id+"','"+message.messageId+"','"+message.type+"','"+message.date+"')")
+      })
+    
+      if (response.creditors){
+          response.creditors.forEach((creditor)=>{
+          resparray.push("INSERT INTO creditors(source,id,name,sum,debt) values('"+source+"','"+id+"','"+creditor.name+"',"+creditor.sum+","+creditor.debt+")")
+        })
+      }
+    })
+  }
   // console.log("RespArray: " +source+"-"+id)
   // console.log(resparray)
   multiquery(resparray,()=>{
     log.timestamp("Loaded\t" + chalk.greenBright(source+"-"+id))
     logResponse(source,id,result);
   })
-  
 }
+
 
 const insertQueries = (source, requests, callback) => {
   var reqid = 0;
