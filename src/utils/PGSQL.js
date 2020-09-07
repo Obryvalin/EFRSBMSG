@@ -5,6 +5,7 @@ const validate = require("./validate");
 const path = require('path')
 const log = require('./log')
 const jp = require('jsonpath');
+const EFRSB = require("./EFRSB");
 
 
 const pgoptions = JSON.parse(fs.readFileSync("conf/pg.json").toString());
@@ -332,29 +333,36 @@ const structData =(source,id,report) =>{
   return resparray
 }
   
-const submitResponse = (source,id,response,callback) =>{
-  if (response) {
-    report = response.Response.Data.Report
-    resultInfo = response.Response.ResultInfo
-    if(report){
-      // report = spext.transform(report)
-      // console.log("Report:")
-      // console.log(report)
-      // log.timestamp("Creating queries for "+source+"-"+id)
-      resparray = structData(source,id,report)
-      result = "Found"
-     }else{
-       result = "Not Found"
-      }
+const submitResponse = (source,id,messages,callback) =>{
+  let EFRSBResponse = []
+  result = "Not found"
+  if (messages) {
+    result = "Found"
+    if (Array.isArray(messages.MessageData)){
+      messages.MessageData.forEach((messageData)=>{
+        EFRSBResponse.push(EFRSB.analyzeMessageInfo(messageData))
+      })
     }
+    else{
+      EFRSBResponse.push(EFRSB.analyzeMessageInfo(messages.MessageData))
+    }
+    EFRSBResponse.messages.forEach((message)=>{
+      resparray.push("INSERT INTO messages(source,id,messageid,type,date) values('"+source+"','"+id+"','"+message.messageid+"','"+message.type+"','"+message.date+"')")
+    })
+    if (EFRSBResponse.creditors){
+      EFRSBResponse.creditors.forEach((creditor)=>{
+        resparray.push("INSERT INTO creditrors(source,id,name,sum,debt) values('"+source+"','"+id+"','"+creditor.name+"',"+creditor.sum+","+creditor.debt+")")
+      })
+    }
+  }
   // console.log("RespArray: " +source+"-"+id)
   // console.log(resparray)
   multiquery(resparray,()=>{
     log.timestamp("Loaded\t" + chalk.greenBright(source+"-"+id))
     logResponse(source,id,result);
   })
-  
 }
+
 
 const insertQueries = (source, requests, callback) => {
   var reqid = 0;

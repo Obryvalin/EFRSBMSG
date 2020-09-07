@@ -79,7 +79,42 @@ const getMessages = (reqdata, callback) => {
     
 };
 
+const analyzeMessageInfo = (messageData) => {
+  let EFRSBResponse = {};
+  EFRSBResponse.messages.push({
+    type:messageData.MessageInfo['@MessageType'],
+    messageId:messageData.id,
+    date:messageData.PublishDate
+  })
+  if (messageData.MessageInfo.StartOfExtrajudicialBankruptcy) {
+    obligations =
+      messageData.MessageInfo.StartOfExtrajudicialBankruptcy
+        .CreditorsNonFromEntrepreneurship.MonetaryObligations
+        .MonetaryObligation;
+    if (Array.isArray(obligations)) {
+      obligation.forEach((obligation) => {
+        EFRSBResponse.creditors.push({
+          name: obligation.CreditorName,
+          sum: obligation.TotalSum,
+          debt: obligation.DebtSum,
+        });
+      });
+    } else {
+      EFRSBResponse.creditors.push({
+        name: obligations.CreditorName,
+        sum: obligations.TotalSum,
+        debt: obligations.DebtSum,
+      });
+    }
+  }
+  if (messageData.MessageInfo.TerminationOfExtrajudicialBankruptcy){
+   
+  }
+  return EFRSBResponse
+};
+
 module.exports = {
   fillTemplate: fillTemplate,
   getMessages: getMessages,
+  analyzeMessageInfo:analyzeMessageInfo
 };
