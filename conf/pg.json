@@ -9,7 +9,7 @@
     "DROP table log",
     "DROP table reqdata",
     "DROP table messages",
-    "DORP table creditors",
+    "DROP table creditors",
     "DROP table errorlog" 
     
   ],
@@ -17,8 +17,8 @@
     "CREATE TABLE log(source character varying(10),id character varying(36),worker character varying(10),snd timestamp without time zone,rep timestamp without time zone,result character varying(5))",
     "CREATE TABLE errorlog (error character varying, datetime timestamp without time zone)",
     "CREATE TABLE reqdata(source character varying(10),id character varying(36),bankruptid character varying(12),startdate date)",
-    "CREATE TABLE messages(source character varying(10),id character varying(36), messageid character varying(10),type character varying(50), date timestamp without time zone",
-    "CREATE TABLE creditors(source character varying(10),id character varying(36), name character varying(50), sum integer,debt integer",
+    "CREATE TABLE messages(source character varying(10),id character varying(36), messageid character varying(10),type character varying(50), date timestamp without time zone)",
+    "CREATE TABLE creditors(source character varying(10),id character varying(36), name character varying(50), sum double precision,debt double precision)",
     "CREATE TABLE workers(workername character varying(10),updated timestamp without time zone)"
      ]
 }

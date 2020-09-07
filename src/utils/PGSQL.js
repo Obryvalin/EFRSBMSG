@@ -335,6 +335,7 @@ const structData =(source,id,report) =>{
   
 const submitResponse = (source,id,messages,callback) =>{
   let EFRSBResponse = []
+  let resparray = []
   result = "Not found"
   if (messages) {
     result = "Found"
@@ -346,14 +347,18 @@ const submitResponse = (source,id,messages,callback) =>{
     else{
       EFRSBResponse.push(EFRSB.analyzeMessageInfo(messages.MessageData))
     }
-    EFRSBResponse.messages.forEach((message)=>{
-      resparray.push("INSERT INTO messages(source,id,messageid,type,date) values('"+source+"','"+id+"','"+message.messageid+"','"+message.type+"','"+message.date+"')")
-    })
-    if (EFRSBResponse.creditors){
-      EFRSBResponse.creditors.forEach((creditor)=>{
-        resparray.push("INSERT INTO creditrors(source,id,name,sum,debt) values('"+source+"','"+id+"','"+creditor.name+"',"+creditor.sum+","+creditor.debt+")")
+
+    EFRSBResponse.forEach((response)=>{
+      response.messages.forEach((message)=>{
+        resparray.push("INSERT INTO messages(source,id,messageid,type,date) values('"+source+"','"+id+"','"+message.messageId+"','"+message.type+"','"+message.date+"')")
       })
-    }
+    
+      if (response.creditors){
+          response.creditors.forEach((creditor)=>{
+          resparray.push("INSERT INTO creditors(source,id,name,sum,debt) values('"+source+"','"+id+"','"+creditor.name+"',"+creditor.sum+","+creditor.debt+")")
+        })
+      }
+    })
   }
   // console.log("RespArray: " +source+"-"+id)
   // console.log(resparray)

@@ -199,14 +199,14 @@ const loopstep = (workerName) =>{
             if (error || !result){
               log.timestamp("ERROR:\t"+chalk.redBright(request.source+"-"+request.id))
               fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
-              log.timestamp("Error for Source:"+request.source+",ID:"+request.id)
-              pgsql.logError("Error for Source:"+request.source+",ID:"+request.id)
+              log.timestamp("Error for Source:"+request.source+",ID:"+request.id + " "+ error)
+              pgsql.logError("Error for Source:"+request.source+",ID:"+request.id + " "+ error)
             }
             if (result){
               log.timestamp("Response\t\t"+chalk.greenBright(request.source+"-"+request.id))
               fs.writeFile(resdir+"\\"+request.source+request.id+".json",JSON.stringify(result),()=>{})
-              //  pgsql.submitResponse(request.source,request.id,result,()=>{
-              // })
+               pgsql.submitResponse(request.source,request.id,result,()=>{
+              })
             }
           })
         })

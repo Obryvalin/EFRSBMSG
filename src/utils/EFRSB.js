@@ -3,9 +3,11 @@ const validate = require("./validate.js");
 const log = require("./log");
 const fs = require("fs");
 const xml = require("./xml");
-const dateformat = require('date-format')
+const dateformat = require("date-format");
 
-const { login, password, url, timeout } = JSON.parse(fs.readFileSync("conf/EFRSB.json"));
+const { login, password, url, timeout } = JSON.parse(
+  fs.readFileSync("conf/EFRSB.json")
+);
 const templateXML = fs.readFileSync("template.xml").toString();
 
 const fillTemplate = (propObj, template) => {
@@ -15,106 +17,108 @@ const fillTemplate = (propObj, template) => {
   return template;
 };
 
-
 const getMessages = (reqdata, callback) => {
-  if (!reqdata.bankruptId) {
+  if (!reqdata.bankruptid) {
     if (callback) {
       callback("Bad bankruptId", undefined);
     }
   }
-  reqdata.startdate = dateformat('yyyy-MM-dd',  reqdata.startdate);
+  reqdata.startdate = dateformat("yyyy-MM-dd", reqdata.startdate);
 
-// console.log(body);
+  // console.log(body);
   const options = {
     url,
-    auth:{
+    auth: {
       user: login,
       password,
-      sendImmediately: false
+      sendImmediately: false,
     },
-    'method':'POST',
-    headers:{
+    method: "POST",
+    headers: {
       "Content-Type": "text/xml;charset=UTF-8",
-      SOAPAction:"http://tempuri.org/IMessageService/GetDebtorMessagesContentForPeriodByIdBankrupt"
+      SOAPAction:
+        "http://tempuri.org/IMessageService/GetDebtorMessagesContentForPeriodByIdBankrupt",
     },
     timeout,
-    
   };
-  options.body = fillTemplate(reqdata, templateXML)
-  
+  options.body = fillTemplate(reqdata, templateXML);
 
- request(options,(error,response) => {
+  request(options, (error, response) => {
     // console.log(response.body)
-      if (response.statusCode != 200) {
-        callback("Error statusCode " + response.statusCode, undefined);
-      }
-      if (error) {callback(error,undefined)}
-      
-      if (response.body) {
-        // console.log("RESP BODY\n" + response.body)
-        xml.toJSON(response.body, (err, soapedJSON) => {
-          if (err) {
-            console.log("err\n" + err);
-            callback(err, undefined);
-          }
-          if (!err) {
-            
-            const response =
-              soapedJSON.Envelope.Body
-                .GetDebtorMessagesContentForPeriodByIdBankruptResponse
-                .GetDebtorMessagesContentForPeriodByIdBankruptResult;
-            // console.log(xml.fixTags(response))
-            
-            xml.toJSON(xml.fixTags(response), (err, JSON) => {
-              console.log(JSON)
-              // response.response.JSON = JSON;
-              // console.log("Response:")
-              // console.log(response)
-              callback(undefined, JSON.Messages);
-            });
-          }
-        });
-      }
-    })
-    
+    if (response.statusCode != 200) {
+      callback("Error statusCode " + response.statusCode, undefined);
+    }
+    if (error) {
+      callback(error, undefined);
+    }
+
+    if (response.body) {
+      // console.log("RESP BODY\n" + response.body)
+      xml.toJSON(response.body, (err, soapedJSON) => {
+        if (err) {
+          console.log("err\n" + err);
+          callback(err, undefined);
+        }
+        if (!err) {
+          const response =
+            soapedJSON.Envelope.Body
+              .GetDebtorMessagesContentForPeriodByIdBankruptResponse
+              .GetDebtorMessagesContentForPeriodByIdBankruptResult;
+          // console.log(xml.fixTags(response))
+
+          xml.toJSON(xml.fixTags(response), (err, JSON) => {
+            // console.log(JSON)
+            // response.response.JSON = JSON;
+            // console.log("Response:")
+            // console.log(response)
+            callback(undefined, JSON.Messages);
+          });
+        }
+      });
+    }
+  });
 };
 
 const analyzeMessageInfo = (messageData) => {
-  let EFRSBResponse = {};
+  let EFRSBResponse = {
+    messages: [],
+    creditors: [],
+  };
   EFRSBResponse.messages.push({
-    type:messageData.MessageInfo['@MessageType'],
-    messageId:messageData.id,
-    date:messageData.PublishDate
-  })
+    type: messageData.MessageInfo["@MessageType"],
+    messageId: messageData.Id,
+    date: messageData.PublishDate,
+  });
   if (messageData.MessageInfo.StartOfExtrajudicialBankruptcy) {
     obligations =
       messageData.MessageInfo.StartOfExtrajudicialBankruptcy
         .CreditorsNonFromEntrepreneurship.MonetaryObligations
         .MonetaryObligation;
-    if (Array.isArray(obligations)) {
-      obligation.forEach((obligation) => {
-        EFRSBResponse.creditors.push({
-          name: obligation.CreditorName,
-          sum: obligation.TotalSum,
-          debt: obligation.DebtSum,
+    if (obligations) {
+      if (Array.isArray(obligations)) {
+        obligations.forEach((obligation) => {
+          EFRSBResponse.creditors.push({
+            name: obligation.CreditorName,
+            sum: obligation.TotalSum,
+            debt: obligation.DebtSum,
+          });
         });
-      });
-    } else {
-      EFRSBResponse.creditors.push({
-        name: obligations.CreditorName,
-        sum: obligations.TotalSum,
-        debt: obligations.DebtSum,
-      });
+      } else {
+        EFRSBResponse.creditors.push({
+          name: obligations.CreditorName,
+          sum: obligations.TotalSum,
+          debt: obligations.DebtSum,
+        });
+      }
     }
   }
-  if (messageData.MessageInfo.TerminationOfExtrajudicialBankruptcy){
-   
+  if (messageData.MessageInfo.TerminationOfExtrajudicialBankruptcy) {
   }
-  return EFRSBResponse
+  return EFRSBResponse;
 };
 
 module.exports = {
   fillTemplate: fillTemplate,
   getMessages: getMessages,
-  analyzeMessageInfo:analyzeMessageInfo
+  analyzeMessageInfo: analyzeMessageInfo,
 };
