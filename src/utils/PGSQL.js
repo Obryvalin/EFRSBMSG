@@ -19,8 +19,8 @@ const query = (sql,callback) =>{
   // log.timestamp(sql);
   pool.query(sql, (err, res) => {
     if (err) {
-      logError("PGSQL query error for request: "+chalk.greenBright(sql))
-      logError(chalk.red(err));
+      log.timestamp("PGSQL query error for request: "+chalk.greenBright(sql))
+      log.timestamp(chalk.red(err));
       if (callback){callback(err,undefined)}
     }
     if (!err) {

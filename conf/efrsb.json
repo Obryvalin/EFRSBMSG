@@ -1,6 +1,6 @@
 {
-    "login":"Obrivalin1",
-    "password":"DRNAZ6",
-    "url":"http://bankrot.fedresurs.ru/MessageService/WebService.svc",
+    "login":"",
+    "password":"",
+    "url":"https://bankrot.fedresurs.ru/MessageService/WebService.svc",
     "timeout":10000
 }

@@ -1,71 +1,73 @@
-<Messages> <MessageData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Id>5409560</Id>
-  <Number>5409560</Number>
-  <Publisher xsi:type="Publisher.Mfc.v2">
-    <Name>МАУ "МФЦ КОЛОМЕНСКОГО ГОРОДСКОГО ОКРУГА"</Name>
-    <Ogrn>1125022005305</Ogrn>
-    <Inn>5022040870</Inn>
-  </Publisher>
-  <MessageInfo MessageType="StartOfExtrajudicialBankruptcy">
-    <StartOfExtrajudicialBankruptcy>
-      <CreditorsNonFromEntrepreneurship>
-        <MonetaryObligations>
-          <MonetaryObligation>
-            <CreditorName>ЗАО "Банк Русский Стандарт"</CreditorName>
-            <CreditorRegion>г. Москва</CreditorRegion>
-            <CreditorLocation>Россия. г. Москва, ул. Ткацкая, д. 36</CreditorLocation>
-            <Basis>Задолженность по кредитному договору №111605615 от 04.01.2014 г.</Basis>
-            <TotalSum>186025.68</TotalSum>
-            <DebtSum>186025.68</DebtSum>
-            <PenaltySum xsi:nil="true" />
-          </MonetaryObligation>
-          <MonetaryObligation>
-            <CreditorName>АО "Банк Русский Стандарт"</CreditorName>
-            <CreditorRegion>г. Москва</CreditorRegion>
-            <CreditorLocation>Россия. г. Москва, ул. Ткацкая, д. 36</CreditorLocation>
-            <Basis>Задолженность по кредитному договору №27547507 от 20.10.2004 г.</Basis>
-            <TotalSum>173376.17</TotalSum>
-            <DebtSum>173376.17</DebtSum>
-            <PenaltySum xsi:nil="true" />
-          </MonetaryObligation>
-          <MonetaryObligation>
-            <CreditorName>АО "ТИНЬКОФФ БАНК"</CreditorName>
-            <CreditorRegion>г. Москва</CreditorRegion>
-            <CreditorLocation>Россия, г. Москва, 1-й Волоколамский проезд, д. 10, стр. 1</CreditorLocation>
-            <Basis>Задолженность по кредитному договору №0146034939 от 21.01.2015 г.</Basis>
-            <TotalSum>103779.83</TotalSum>
-            <DebtSum>103779.83</DebtSum>
-            <PenaltySum xsi:nil="true" />
-          </MonetaryObligation>
-        </MonetaryObligations>
-        <ObligatoryPayments />
-      </CreditorsNonFromEntrepreneurship>
-      <IsIndividualEntrepreneur>false</IsIndividualEntrepreneur>
-      <CreditorsFromEntrepreneurship>
-        <MonetaryObligations />
-        <ObligatoryPayments />
-      </CreditorsFromEntrepreneurship>
-      <Banks />
-    </StartOfExtrajudicialBankruptcy>
-  </MessageInfo>
-  <Bankrupt xsi:type="Bankrupt.Person.v2">
-    <Category>
-      <Code>SimplePerson</Code>
-      <Description>Физическое лицо</Description>
-    </Category>
-    <Fio>
-      <LastName>Натарова</LastName>
-      <FirstName>Елена</FirstName>
-      <MiddleName>Валентиновна</MiddleName>
-    </Fio>
-    <Inn>502205460694</Inn>
-    <Snils>04101475192</Snils>
-    <Address>Московская область город Коломна улица Щорса дом 30</Address>
-    <Birthdate>17.08.1975</Birthdate>
-    <Birthplace>город Коломна  Московская область</Birthplace>
-  </Bankrupt>
-  <PublishDate>2020-09-01T10:20:52.51</PublishDate>
-  <BankruptId>403996</BankruptId>
-  <MessageGUID>49C9C91DEB4D878922A4B92828D7EC6A</MessageGUID>
-</MessageData>
+<Messages>
+    <MessageData xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <Id>5409560</Id>
+        <Number>5409560</Number>
+        <Publisher xsi:type="Publisher.Mfc.v2">
+            <Name>МАУ "МФЦ КОЛОМЕНСКОГО ГОРОДСКОГО ОКРУГА"</Name>
+            <Ogrn>1125022005305</Ogrn>
+            <Inn>5022040870</Inn>
+        </Publisher>
+        <MessageInfo MessageType="StartOfExtrajudicialBankruptcy">
+            <StartOfExtrajudicialBankruptcy>
+                <CreditorsNonFromEntrepreneurship>
+                    <MonetaryObligations>
+                        <MonetaryObligation>
+                            <CreditorName>ЗАО "Банк Русский Стандарт"</CreditorName>
+                            <CreditorRegion>г. Москва</CreditorRegion>
+                            <CreditorLocation>Россия. г. Москва, ул. Ткацкая, д. 36</CreditorLocation>
+                            <Basis>Задолженность по кредитному договору №111605615 от 04.01.2014 г.</Basis>
+                            <TotalSum>186025.68</TotalSum>
+                            <DebtSum>186025.68</DebtSum>
+                            <PenaltySum xsi:nil="true" />
+                        </MonetaryObligation>
+                        <MonetaryObligation>
+                            <CreditorName>АО "Банк Русский Стандарт"</CreditorName>
+                            <CreditorRegion>г. Москва</CreditorRegion>
+                            <CreditorLocation>Россия. г. Москва, ул. Ткацкая, д. 36</CreditorLocation>
+                            <Basis>Задолженность по кредитному договору №27547507 от 20.10.2004 г.</Basis>
+                            <TotalSum>173376.17</TotalSum>
+                            <DebtSum>173376.17</DebtSum>
+                            <PenaltySum xsi:nil="true" />
+                        </MonetaryObligation>
+                        <MonetaryObligation>
+                            <CreditorName>АО "ТИНЬКОФФ БАНК"</CreditorName>
+                            <CreditorRegion>г. Москва</CreditorRegion>
+                            <CreditorLocation>Россия, г. Москва, 1-й Волоколамский проезд, д. 10, стр. 1</CreditorLocation>
+                            <Basis>Задолженность по кредитному договору №0146034939 от 21.01.2015 г.</Basis>
+                            <TotalSum>103779.83</TotalSum>
+                            <DebtSum>103779.83</DebtSum>
+                            <PenaltySum xsi:nil="true" />
+                        </MonetaryObligation>
+                    </MonetaryObligations>
+                    <ObligatoryPayments />
+                </CreditorsNonFromEntrepreneurship>
+                <IsIndividualEntrepreneur>false</IsIndividualEntrepreneur>
+                <CreditorsFromEntrepreneurship>
+                    <MonetaryObligations />
+                    <ObligatoryPayments />
+                </CreditorsFromEntrepreneurship>
+                <Banks />
+            </StartOfExtrajudicialBankruptcy>
+        </MessageInfo>
+        <Bankrupt xsi:type="Bankrupt.Person.v2">
+            <Category>
+                <Code>SimplePerson</Code>
+                <Description>Физическое лицо</Description>
+            </Category>
+            <Fio>
+                <LastName>Натарова</LastName>
+                <FirstName>Елена</FirstName>
+                <MiddleName>Валентиновна</MiddleName>
+            </Fio>
+            <Inn>502205460694</Inn>
+            <Snils>04101475192</Snils>
+            <Address>Московская область город Коломна улица Щорса дом 30</Address>
+            <Birthdate>17.08.1975</Birthdate>
+            <Birthplace>город Коломна  Московская область</Birthplace>
+        </Bankrupt>
+        <PublishDate>2020-09-01T10:20:52.51</PublishDate>
+        <BankruptId>403996</BankruptId>
+        <MessageGUID>49C9C91DEB4D878922A4B92828D7EC6A</MessageGUID>
+    </MessageData>
 </Messages>

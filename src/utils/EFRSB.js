@@ -45,7 +45,7 @@ const getMessages = (reqdata, callback) => {
 
   request(options, (error, response) => {
     // console.log(response.body)
-    if (!response.statusCode || response.statusCode != 200) {
+    if (!response || !response.statusCode || response.statusCode != 200) {
       callback("Error statusCode " + response.statusCode, undefined);
     }
     if (error) {
