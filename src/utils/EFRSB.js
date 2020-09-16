@@ -84,10 +84,15 @@ const analyzeMessageInfo = (messageData) => {
     messages: [],
     creditors: [],
   };
+  let URL = ""
+  if (messageData.MessageURLList && messageData.MessageURLList.MessageURL && messageData.MessageURLList.MessageURL["@URL"]){
+    URL = messageData.MessageURLList.MessageURL["@URL"];
+  }
   EFRSBResponse.messages.push({
     type: messageData.MessageInfo["@MessageType"],
     messageId: messageData.Id,
     date: messageData.PublishDate,
+    URL:URL
   });
   if (messageData.MessageInfo.StartOfExtrajudicialBankruptcy) {
     obligations =
