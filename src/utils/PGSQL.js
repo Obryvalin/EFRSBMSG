@@ -257,7 +257,7 @@ const submitResponse = (source,id,messages,callback) =>{
 
     EFRSBResponse.forEach((response)=>{
       response.messages.forEach((message)=>{
-        resparray.push("INSERT INTO messages(source,id,messageid,type,date) values('"+source+"','"+id+"','"+message.messageId+"','"+message.type+"','"+message.date+"')")
+        resparray.push("INSERT INTO messages(source,id,messageid,type,date,url) values('"+source+"','"+id+"','"+message.messageId+"','"+message.type+"','"+message.date+"','"+message.URL+"')")
       })
     
       if (response.creditors){
