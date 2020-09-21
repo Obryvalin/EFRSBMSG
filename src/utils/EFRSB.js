@@ -58,7 +58,7 @@ const getMessages = (reqdata, callback) => {
           console.log("err\n" + err);
           callback(err, undefined);
         }
-        if (!err) {
+        if (soapedJSON.Envelope.Body) {
           const response =
             soapedJSON.Envelope.Body
               .GetDebtorMessagesContentForPeriodByIdBankruptResponse
@@ -70,6 +70,9 @@ const getMessages = (reqdata, callback) => {
             // response.response.JSON = JSON;
             // console.log("Response:")
             // console.log(response)
+          if (err){
+            callback(err,undefined)
+          }
             callback(undefined, JSON.Messages);
           });
         }
