@@ -51,8 +51,7 @@ const getMessages = (reqdata, callback) => {
     if (error) {
       callback(error, undefined);
     }
-
-    if (response.body) {
+    else {
       // console.log("RESP BODY\n" + response.body)
       xml.toJSON(response.body, (err, soapedJSON) => {
         if (err) {
