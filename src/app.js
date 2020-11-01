@@ -198,7 +198,7 @@ const loopstep = (workerName) =>{
           EFRSB.getMessages(request,(error,result)=>{
             if (error){
               log.timestamp("ERROR:\t"+chalk.redBright(request.source+"-"+request.id))
-              fs.writeFile(resdir+"\\"+request.source+request.id+".json",error,()=>{})
+              fs.writeFile(resdir+"\\"+request.source+request.id+".json",error.toString(),()=>{})
               log.timestamp("Error for Source:"+request.source+",ID:"+request.id + " "+ error)
               pgsql.logError("Error for Source:"+request.source+",ID:"+request.id + " "+ error)
             }

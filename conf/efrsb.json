@@ -1,6 +1,6 @@
 {
-    "login":"",
-    "password":"",
+    "login":"Obrivalin1",
+    "password":"DRNAZ6",
     "url":"https://services.fedresurs.ru/Bankruptcy/MessageService/WebService.svc",
     "timeout":10000
 }

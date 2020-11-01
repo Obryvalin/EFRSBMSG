@@ -45,20 +45,22 @@ const getMessages = (reqdata, callback) => {
 
   request(options, (error, response) => {
     // console.log(response.body)
-    if (!response || !response.statusCode || response.statusCode != 200) {
+    if (response && response.statusCode && response.statusCode != 200) {
       callback("Error statusCode " + response.statusCode, undefined);
     }
     if (error) {
       callback(error, undefined);
     }
-    else {
+
+    if (response && response.body) {
       // console.log("RESP BODY\n" + response.body)
       xml.toJSON(response.body, (err, soapedJSON) => {
         if (err) {
           console.log("err\n" + err);
           callback(err, undefined);
         }
-        if (soapedJSON.Envelope) {
+        
+        if (soapedJSON.Envelope && soapedJSON.Envelope.Body) {
           const response =
             soapedJSON.Envelope.Body
               .GetDebtorMessagesContentForPeriodByIdBankruptResponse
@@ -70,9 +72,6 @@ const getMessages = (reqdata, callback) => {
             // response.response.JSON = JSON;
             // console.log("Response:")
             // console.log(response)
-          if (err){
-            callback(err,undefined)
-          }
             callback(undefined, JSON.Messages);
           });
         }
@@ -86,15 +85,11 @@ const analyzeMessageInfo = (messageData) => {
     messages: [],
     creditors: [],
   };
-  let URL = ""
-  if (messageData.MessageURLList && messageData.MessageURLList.MessageURL && messageData.MessageURLList.MessageURL["@URL"]){
-    URL = messageData.MessageURLList.MessageURL["@URL"];
-  }
   EFRSBResponse.messages.push({
     type: messageData.MessageInfo["@MessageType"],
     messageId: messageData.Id,
     date: messageData.PublishDate,
-    URL:URL
+    caseNumber:messageData.CaseNumber,
   });
   if (messageData.MessageInfo.StartOfExtrajudicialBankruptcy) {
     obligations =
